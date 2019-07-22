@@ -1,15 +1,18 @@
-import { Router, RequestHandler, Request, Response } from "express";
+import {
+  Router,
+  RequestHandler,
+  Request,
+  Response,
+  NextFunction
+} from "express";
 import { URL } from "url";
 
 import {
   getControllerMetadata,
-  ControllerMetadata
-} from "./metadata/controller";
-import {
   getControllerMethodMetadata,
+  ControllerMetadata,
   ControllerMethodMetadata
-} from "./metadata/controller-method";
-import { NextFunction } from "connect";
+} from "./metadata";
 import { ControllerMethodResult, StatusCode, Headers } from "./method-result";
 
 export interface Controller {
