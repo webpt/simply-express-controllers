@@ -1,0 +1,24 @@
+{
+  "name": "soapdish-controllers",
+  "version": "1.0.0",
+  "description": "Utility library to produce express routers and swagger docs from controller classes.",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express"
+  ],
+  "author": "william.matthews@webpt.com",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "lodash": "^4.17.15"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.0",
+    "@types/lodash": "^4.14.136"
+  },
+  "peerDependencies": {
+    "exppress": "^4.17.1"
+  }
+}
