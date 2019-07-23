@@ -1,6 +1,7 @@
 import { Router } from "express";
+import pathUtils from "path";
+import bodyParser from "body-parser";
 
-import { joinURL } from "../url-utils";
 import {
   getControllerMetadata,
   getControllerMethodMetadata,
@@ -17,6 +18,8 @@ export interface Controller {
 
 export function createControllerRoute(...controllers: Controller[]): Router {
   const router = Router();
+  router.use(bodyParser.json());
+
   for (const controller of controllers) {
     linkControllerToRoute(controller, router);
   }
@@ -24,7 +27,7 @@ export function createControllerRoute(...controllers: Controller[]): Router {
 }
 
 function linkControllerToRoute(controller: Controller, route: Router) {
-  const controllerMetadata = getControllerMetadata(controller);
+  const controllerMetadata = getControllerMetadata(controller.constructor);
   if (!controllerMetadata) {
     throw new Error(
       `Controller "${
@@ -33,8 +36,16 @@ function linkControllerToRoute(controller: Controller, route: Router) {
     );
   }
 
-  for (const key in controller.prototype) {
-    const method = (controller.prototype as any)[key];
+  // Get all keys that exist on the controller.
+  const keys: string[] = [];
+  let scanTarget = controller;
+  do {
+    keys.push(...Object.getOwnPropertyNames(scanTarget));
+  } while ((scanTarget = Object.getPrototypeOf(scanTarget)));
+
+  // Scan the keys for controller methods, and make routes for them.
+  for (const key of keys) {
+    const method = (controller as any)[key];
     if (typeof method !== "function") {
       continue;
     }
@@ -66,7 +77,7 @@ function linkControllerMethodToRoute(
     method,
     methodMetadata
   );
-  const path = joinURL(
+  const path = pathUtils.posix.join(
     controllerMetadata.path || "/",
     methodMetadata.path || "/"
   );

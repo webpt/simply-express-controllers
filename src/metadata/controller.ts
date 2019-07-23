@@ -24,5 +24,8 @@ export function appendControllerMetadata(
   controller: any,
   metadata: Partial<ControllerMetadata>
 ) {
+  if (!controller[ControllerMetadataSymbol]) {
+    controller[ControllerMetadataSymbol] = {};
+  }
   merge(controller[ControllerMetadataSymbol], metadata);
 }

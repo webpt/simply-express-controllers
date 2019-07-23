@@ -2,7 +2,8 @@ import { ValidateFunction } from "ajv";
 
 export function getValidatorError(
   validator: ValidateFunction,
-  defaultMessage: string
+  defaultMessage: string,
+  defaultProp: string = ""
 ): string {
   if (!validator.errors) {
     return defaultMessage;
@@ -10,8 +11,15 @@ export function getValidatorError(
   if (validator.errors.length == 0) {
     return defaultMessage;
   }
-  if (!validator.errors[0].message) {
+
+  const error = validator.errors[0];
+  if (!error.message) {
     return defaultMessage;
   }
-  return validator.errors[0].message;
+
+  let prop = error.propertyName || defaultProp;
+  if (prop && prop != "") {
+    prop += " ";
+  }
+  return `${prop}${validator.errors[0].message}`;
 }

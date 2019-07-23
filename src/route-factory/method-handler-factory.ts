@@ -36,10 +36,14 @@ export function createControllerMethodHandler(
     ? ajv.compile(methodMetadata.requestSchema)
     : NoOpAjvValidator;
 
-  return (req: Request, res: Response, next: NextFunction) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!requestValidator(req.body)) {
-        const errorMessage = getValidatorError(requestValidator, "Bad Request");
+        const errorMessage = getValidatorError(
+          requestValidator,
+          "does not match required schema",
+          "body"
+        );
         throw createError(HttpStatusCodes.BAD_REQUEST, errorMessage);
       }
 
@@ -50,12 +54,16 @@ export function createControllerMethodHandler(
         queryValidators
       );
 
-      const result = method.apply(controller, args) as ControllerMethodResult;
+      const result: ControllerMethodResult = await method.apply(
+        controller,
+        args
+      );
 
       if (!responseValidator(result)) {
         const errorMessage = getValidatorError(
           responseValidator,
-          "Response did not match responseSchema."
+          "Response did not match responseSchema.",
+          "response"
         );
         // Throw a real error so it can be logged.
         //  Express will return an Internal Server Error in response.
@@ -86,7 +94,7 @@ function createQueryParamValidator(
     properties: {
       value: {
         ...metadata,
-        // Remove our required: true/false value, as it is not standard json.
+        // Remove our required: true/false value, as it is not standard json-schema.
         required: undefined
       }
     },
@@ -104,7 +112,7 @@ function createQueryParamValidator(
     if (!validate(data)) {
       throw createError(
         HttpStatusCodes.UNPROCESSABLE_ENTITY,
-        getValidatorError(validate, `Query parameter ${key} is invalid.`)
+        getValidatorError(validate, `Query parameter ${key} is invalid.`, key);
       );
     }
     // Data may have been coerced by ajv.

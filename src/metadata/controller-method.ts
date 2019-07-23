@@ -32,21 +32,24 @@ const ControllerMethodMetadataSymbol = createSymbol(
 );
 
 export function getControllerMethodMetadata(
-  controller: any
+  method: any
 ): ControllerMethodMetadata | undefined {
-  return controller[ControllerMethodMetadataSymbol] || undefined;
+  return method[ControllerMethodMetadataSymbol] || undefined;
 }
 
 export function setControllerMethodMetadata(
-  controller: any,
+  method: any,
   metadata: ControllerMethodMetadata
 ) {
-  controller[ControllerMethodMetadataSymbol] = metadata;
+  method[ControllerMethodMetadataSymbol] = metadata;
 }
 
 export function appendControllerMethodMetadata(
-  controller: any,
+  method: any,
   metadata: Partial<ControllerMethodMetadata>
 ) {
-  merge(controller[ControllerMethodMetadataSymbol], metadata);
+  if (!method[ControllerMethodMetadataSymbol]) {
+    method[ControllerMethodMetadataSymbol] = {};
+  }
+  merge(method[ControllerMethodMetadataSymbol], metadata);
 }
