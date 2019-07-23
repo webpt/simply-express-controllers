@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "description": "Utility library to produce express routers and swagger docs from controller classes.",
   "main": "lib/index.js",
+  "types": "dts/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf lib dts",
+    "prebuild": "npm run clean",
+    "build": "tsc -p src"
   },
   "keywords": [
     "express"
@@ -16,9 +19,11 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.0",
-    "@types/lodash": "^4.14.136"
+    "@types/lodash": "^4.14.136",
+    "rimraf": "^2.6.3",
+    "typescript": "^3.5.3"
   },
   "peerDependencies": {
-    "exppress": "^4.17.1"
+    "express": "^4.17.1"
   }
 }
