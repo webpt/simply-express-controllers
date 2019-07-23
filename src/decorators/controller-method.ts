@@ -21,6 +21,20 @@ export interface ControllerMethodSettings {
    * Path parameter definitions.
    */
   pathParams?: Record<string, PathParamSettings>;
+
+  /**
+   * Schema for the request.
+   *
+   * If the request does not match the schema, a Bad Request status code is returned.
+   */
+  requestSchema?: JSONSchema6;
+
+  /**
+   * Schema for the response.
+   *
+   * If the response does not match the schema, an Internal Server Error status code is returned.
+   */
+  responseSchema?: JSONSchema6;
 }
 
 /**

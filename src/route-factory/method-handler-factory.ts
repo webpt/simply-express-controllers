@@ -11,6 +11,11 @@ import { QueryParamSettings, PathParamSettings } from "../decorators";
 
 import { Controller } from "./route-factory";
 
+const ajv = new Ajv({ coerceTypes: true, useDefaults: true });
+
+type ValidateFunction = (val: any) => any;
+const NoOpAjvValidator: Ajv.ValidateFunction = () => true;
+
 export function createControllerMethodHandler(
   controller: Controller,
   method: Function,
@@ -24,20 +29,46 @@ export function createControllerMethodHandler(
     methodMetadata.pathParams,
     createPathParamValidator
   );
+  const requestValidator = methodMetadata.requestSchema
+    ? ajv.compile(methodMetadata.requestSchema)
+    : NoOpAjvValidator;
+  const responseValidator = methodMetadata.requestSchema
+    ? ajv.compile(methodMetadata.requestSchema)
+    : NoOpAjvValidator;
+
   return (req: Request, res: Response, next: NextFunction) => {
     try {
+      if (!requestValidator(req.body)) {
+        const errorMessage = getValidatorError(requestValidator, "Bad Request");
+        throw createError(HttpStatusCodes.BAD_REQUEST, errorMessage);
+      }
+
       const args = collectMethodArgs(
         req,
         methodMetadata,
         pathValidators,
         queryValidators
       );
+
       const result = method.apply(controller, args) as ControllerMethodResult;
+
+      if (!responseValidator(result)) {
+        const errorMessage = getValidatorError(
+          responseValidator,
+          "Response did not match responseSchema."
+        );
+        // Throw a real error so it can be logged.
+        //  Express will return an Internal Server Error in response.
+        throw new Error(errorMessage);
+      }
+
       const statusCode = result[StatusCode] || 200;
+
       const headers = result[Headers] || {};
       for (const key of Object.keys(headers)) {
         res.setHeader(key, headers[key]);
       }
+
       res.status(statusCode).send(result);
     } catch (e) {
       next(e);
@@ -45,15 +76,12 @@ export function createControllerMethodHandler(
   };
 }
 
-const validatorAjv = new Ajv({ coerceTypes: true, useDefaults: true });
-
-type ValidateFunction = (val: any) => any;
 function createQueryParamValidator(
   metadata: QueryParamSettings,
   key: string
 ): ValidateFunction {
   // We need to pass the data by object, for type coersion and default values, and requiredness.
-  const validate = validatorAjv.compile({
+  const validate = ajv.compile({
     type: "object",
     properties: {
       value: {
@@ -88,7 +116,7 @@ function createPathParamValidator(
   metadata: PathParamSettings
 ): ValidateFunction {
   // We need to pass the data by object, for type coersion and default values, and requiredness.
-  const validate = validatorAjv.compile({
+  const validate = ajv.compile({
     type: "object",
     properties: {
       value: metadata
