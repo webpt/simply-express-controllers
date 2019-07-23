@@ -1,19 +1,14 @@
-import {
-  Router,
-  RequestHandler,
-  Request,
-  Response,
-  NextFunction
-} from "express";
-import { URL } from "url";
+import { Router } from "express";
 
+import { joinURL } from "../url-utils";
 import {
   getControllerMetadata,
   getControllerMethodMetadata,
   ControllerMetadata,
   ControllerMethodMetadata
-} from "./metadata";
-import { ControllerMethodResult, StatusCode, Headers } from "./method-result";
+} from "../metadata";
+
+import { createControllerMethodHandler } from "./method-handler-factory";
 
 export interface Controller {
   constructor: Function;
@@ -92,58 +87,4 @@ function linkControllerMethodToRoute(
       route.delete(path, handler);
       break;
   }
-}
-
-function createControllerMethodHandler(
-  controller: Controller,
-  method: Function,
-  methodMetadata: ControllerMethodMetadata
-): RequestHandler {
-  return (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const args = collectMethodArgs(req, methodMetadata);
-      const result = method.apply(controller, args) as ControllerMethodResult;
-      const statusCode = result[StatusCode] || 200;
-      const headers = result[Headers] || {};
-      for (const key of Object.keys(headers)) {
-        res.setHeader(key, headers[key]);
-      }
-      res.status(statusCode).send(result);
-    } catch (e) {
-      next(e);
-    }
-  };
-}
-
-function collectMethodArgs(
-  req: Request,
-  methodMetadata: ControllerMethodMetadata
-): any[] {
-  return methodMetadata.args.map(argMetadata => {
-    switch (argMetadata.type) {
-      case "body":
-        return req.body;
-      case "pathParam":
-        return req.params[argMetadata.paramName];
-      case "queryParam":
-        return req.query[argMetadata.paramName];
-      default:
-        return undefined;
-    }
-  });
-}
-
-function joinURL(root: string, ...path: string[]) {
-  var url = new URL(root);
-  url.pathname = [...stripTrailingSlash(url.pathname).split("/"), ...path].join(
-    "/"
-  );
-  return url.toString();
-}
-
-function stripTrailingSlash(str: string): string {
-  if (str[str.length - 1] === "/") {
-    return str.substr(0, str.length - 1);
-  }
-  return str;
 }

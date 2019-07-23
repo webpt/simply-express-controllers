@@ -17,6 +17,10 @@ export interface ControllerMethodSettings {
    * Query parameter definitions.
    */
   queryParams?: Record<string, QueryParamSettings>;
+  /**
+   * Path parameter definitions.
+   */
+  pathParams?: Record<string, PathParamSettings>;
 }
 
 /**
@@ -31,6 +35,13 @@ export interface QueryParamSettings extends Omit<JSONSchema6, "required"> {
    * Whether this parameter is required.
    */
   required?: boolean;
+}
+
+export interface PathParamSettings extends JSONSchema6 {
+  /**
+   * The type of this parameter.
+   */
+  type: "string" | "number" | "boolean";
 }
 
 /**
