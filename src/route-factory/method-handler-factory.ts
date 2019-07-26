@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import { mapValues } from "lodash";
+import { mapValues, get } from "lodash";
 import Ajv from "ajv";
 import createError from "http-errors";
 import HttpStatusCodes from "http-status-codes";
 
 import { StatusCode, Headers, ControllerMethodResult } from "../method-result";
 import { getValidatorError } from "../ajv-utils";
-import { ControllerMethodMetadata } from "../metadata";
-import { QueryParamSettings, PathParamSettings } from "../decorators";
+import { ControllerMethodMetadata, ParamMetadata } from "../metadata";
 
 import { Controller } from "../types";
 
@@ -29,12 +28,16 @@ export function createControllerMethodHandler(
     methodMetadata.pathParams,
     createPathParamValidator
   );
-  const requestValidator = methodMetadata.requestSchema
-    ? ajv.compile(methodMetadata.requestSchema)
+
+  const requestSchema = get(methodMetadata, ["request", "schema"]);
+  const requestValidator = requestSchema
+    ? ajv.compile(requestSchema)
     : NoOpAjvValidator;
-  const responseValidator = methodMetadata.requestSchema
-    ? ajv.compile(methodMetadata.requestSchema)
-    : NoOpAjvValidator;
+
+  // TODO: Make validators for each status code.
+  // const responseValidator = methodMetadata.requestSchema
+  //   ? ajv.compile(methodMetadata.requestSchema)
+  //   : NoOpAjvValidator;
 
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -59,16 +62,17 @@ export function createControllerMethodHandler(
         args
       );
 
-      if (!responseValidator(result)) {
-        const errorMessage = getValidatorError(
-          responseValidator,
-          "Response did not match responseSchema.",
-          "response"
-        );
-        // Throw a real error so it can be logged.
-        //  Express will return an Internal Server Error in response.
-        throw new Error(errorMessage);
-      }
+      // TODO: Validate response based on status code
+      // if (!responseValidator(result)) {
+      //   const errorMessage = getValidatorError(
+      //     responseValidator,
+      //     "Response did not match responseSchema.",
+      //     "response"
+      //   );
+      //   // Throw a real error so it can be logged.
+      //   //  Express will return an Internal Server Error in response.
+      //   throw new Error(errorMessage);
+      // }
 
       const statusCode = result[StatusCode] || 200;
 
@@ -85,7 +89,7 @@ export function createControllerMethodHandler(
 }
 
 function createQueryParamValidator(
-  metadata: QueryParamSettings,
+  metadata: ParamMetadata,
   key: string
 ): ValidateFunction {
   // We need to pass the data by object, for type coersion and default values, and requiredness.
@@ -93,7 +97,7 @@ function createQueryParamValidator(
     type: "object",
     properties: {
       value: {
-        ...metadata,
+        ...metadata.schema,
         // Remove our required: true/false value, as it is not standard json-schema.
         required: undefined
       }
@@ -120,14 +124,12 @@ function createQueryParamValidator(
   };
 }
 
-function createPathParamValidator(
-  metadata: PathParamSettings
-): ValidateFunction {
+function createPathParamValidator(metadata: ParamMetadata): ValidateFunction {
   // We need to pass the data by object, for type coersion and default values, and requiredness.
   const validate = ajv.compile({
     type: "object",
     properties: {
-      value: metadata
+      value: metadata.schema
     },
     required: metadata.required ? ["value"] : []
   });
@@ -149,7 +151,7 @@ function collectMethodArgs(
   pathValidators: Record<string, ValidateFunction>,
   queryValidators: Record<string, ValidateFunction>
 ): any[] {
-  return methodMetadata.args.map(argMetadata => {
+  return methodMetadata.handlerArgs.map(argMetadata => {
     switch (argMetadata.type) {
       case "body":
         return req.body;

@@ -4,99 +4,116 @@ import {
   appendControllerMethodMetadata,
   ControllerMethodArgMetadata
 } from "../metadata/controller-method";
+import { Method } from "../types";
 
 /**
- * Describes common settings for controller methods.
+ * Settings for controller methods.
  */
-export interface ControllerMethodSettings {
-  /**
-   * The path of this method, relative to the controller path.
-   */
-  path?: string;
-  /**
-   * Query parameter definitions.
-   */
-  queryParams?: Record<string, QueryParamSettings>;
-  /**
-   * Path parameter definitions.
-   */
-  pathParams?: Record<string, PathParamSettings>;
-
-  /**
-   * Schema for the request.
-   *
-   * If the request does not match the schema, a Bad Request status code is returned.
-   */
-  requestSchema?: JSONSchema6;
-
-  /**
-   * Schema for the response.
-   *
-   * If the response does not match the schema, an Internal Server Error status code is returned.
-   */
-  responseSchema?: JSONSchema6;
-}
-
-/**
- * Describes a query parameter.
- */
-export interface QueryParamSettings extends Omit<JSONSchema6, "required"> {
-  /**
-   * The type of this parameter.
-   */
-  type: "string" | "number" | "boolean" | "integer";
-  /**
-   * Whether this parameter is required.
-   */
-  required?: boolean;
-}
-
-export interface PathParamSettings extends JSONSchema6 {
-  /**
-   * The type of this parameter.
-   */
-  type: "string" | "number" | "boolean" | "integer";
-}
+export interface ControllerMethodSettings {}
 
 /**
  * Annotates this method to be a GET request method.
  * @param settings Settings for this request method.
  */
-export function get(settings: ControllerMethodSettings): MethodDecorator {
-  return (target: any, propertyKey: string | symbol) => {
-    appendControllerMethodMetadata(target[propertyKey], {
-      method: "GET",
-      ...settings
-    });
-  };
+export function get(
+  path?: string,
+  settings?: ControllerMethodSettings
+): MethodDecorator {
+  return method("GET", path, settings);
 }
 
 /**
  * Annotates this method to be a POST request method.
  * @param settings Settings for this request method.
  */
-export function post(settings: ControllerMethodSettings): MethodDecorator {
+export function post(
+  path?: string,
+  settings?: ControllerMethodSettings
+): MethodDecorator {
+  return method("POST", path, settings);
+}
+
+/**
+ * Annotates this method to be a controller method responding
+ * to a path.
+ * @param method The HTTP Method to respond to.
+ * @param path The path to respond at, relative to the controller path.
+ * @param settings Additional settings for this method.
+ */
+export function method(
+  method: Method,
+  path?: string,
+  settings?: ControllerMethodSettings
+): MethodDecorator {
   return (target: any, propertyKey: string | symbol) => {
     appendControllerMethodMetadata(target[propertyKey], {
-      method: "POST",
-      ...settings
+      method,
+      path
     });
   };
 }
 
+export interface ResponseSettings {
+  /** A description of the meaning of this response */
+  description?: string;
+  /**
+   * JSONSchema describing the shape of this response.
+   */
+  schema?: JSONSchema6;
+}
+export function response(
+  statusCode: number,
+  settings: ResponseSettings = {}
+): MethodDecorator {
+  return (target: any, propertyKey: string | symbol) => {
+    appendControllerMethodMetadata(target[propertyKey], {
+      responses: {
+        [statusCode]: {
+          description: settings.description,
+          schema: settings.schema
+        }
+      }
+    });
+  };
+}
+
+export interface BodySettings {
+  /**
+   * Whether a request body is required on this method.
+   */
+  required?: boolean;
+  /**
+   * JSONSchema describing the request.
+   */
+  schema?: JSONSchema6;
+}
 /**
  * Annotates this parameter to receive the request body.
  */
-export function body(): ParameterDecorator {
+export function body(settings: BodySettings = {}): ParameterDecorator {
   return (target: any, propertyKey: string | symbol, methodIndex: number) => {
     const partialArgs: ControllerMethodArgMetadata[] = [];
     partialArgs[methodIndex] = {
       type: "body"
     };
     appendControllerMethodMetadata(target[propertyKey], {
-      args: partialArgs
+      request: {
+        required: settings.required,
+        schema: settings.schema
+      },
+      handlerArgs: partialArgs
     });
   };
+}
+
+/**
+ * Settings for path parameters.
+ */
+export interface PathParamSettings {
+  /**
+   * JSONSchema describing this parameter.
+   */
+  schema?: JSONSchema6;
 }
 
 /**
@@ -106,7 +123,10 @@ export function body(): ParameterDecorator {
  * it will be cocerced to the type supplied in that definition.
  * Otherwise, it will be a string.
  */
-export function pathParam(paramName: string): ParameterDecorator {
+export function pathParam(
+  paramName: string,
+  settings: PathParamSettings = {}
+): ParameterDecorator {
   return (target: any, propertyKey: string | symbol, methodIndex: number) => {
     const partialArgs: ControllerMethodArgMetadata[] = [];
     partialArgs[methodIndex] = {
@@ -114,9 +134,29 @@ export function pathParam(paramName: string): ParameterDecorator {
       paramName: paramName
     };
     appendControllerMethodMetadata(target[propertyKey], {
-      args: partialArgs
+      pathParams: {
+        [paramName]: {
+          schema: settings.schema
+        }
+      },
+      handlerArgs: partialArgs
     });
   };
+}
+
+/**
+ * Settings for query parameters.
+ */
+export interface QueryParamSettings {
+  /**
+   * Whether this query parameter is required.
+   */
+  required?: boolean;
+
+  /**
+   * JSONSchema describing this query parameter.
+   */
+  schema?: JSONSchema6;
 }
 
 /**
@@ -126,7 +166,10 @@ export function pathParam(paramName: string): ParameterDecorator {
  * it will be cocerced to the type supplied in that definition.
  * Otherwise, it will be a string.
  */
-export function queryParam(paramName: string): ParameterDecorator {
+export function queryParam(
+  paramName: string,
+  settings: QueryParamSettings = {}
+): ParameterDecorator {
   return (target: any, propertyKey: string | symbol, methodIndex: number) => {
     const partialArgs: ControllerMethodArgMetadata[] = [];
     partialArgs[methodIndex] = {
@@ -134,7 +177,12 @@ export function queryParam(paramName: string): ParameterDecorator {
       paramName: paramName
     };
     appendControllerMethodMetadata(target[propertyKey], {
-      args: partialArgs
+      queryParams: {
+        [paramName]: {
+          schema: settings.schema
+        }
+      },
+      handlerArgs: partialArgs
     });
   };
 }

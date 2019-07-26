@@ -1,11 +1,40 @@
 import { merge } from "lodash";
+import { JSONSchema6 } from "json-schema";
 
-import { ControllerMethodSettings } from "../decorators/controller-method";
 import createSymbol from "../create-symbol";
+import { Method } from "../types";
 
-export interface ControllerMethodMetadata extends ControllerMethodSettings {
-  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  args: ControllerMethodArgMetadata[];
+export interface ControllerMethodMetadata {
+  method: Method;
+  path?: string;
+
+  queryParams?: Record<string, ParamMetadata>;
+  pathParams?: Record<string, ParamMetadata>;
+
+  request?: RequestMetadata;
+
+  responses?: Record<number, ResponseMetadata>;
+
+  handlerArgs: ControllerMethodArgMetadata[];
+}
+
+export interface RequestMetadata {
+  required?: boolean;
+  schema?: JSONSchema6;
+}
+
+export interface ResponseMetadata {
+  description?: string;
+  schema?: JSONSchema6;
+}
+
+export interface ParamMetadata {
+  /**
+   * Whether this parameter is required.
+   */
+  required?: boolean;
+
+  schema?: JSONSchema6;
 }
 
 export type ControllerMethodArgMetadata =

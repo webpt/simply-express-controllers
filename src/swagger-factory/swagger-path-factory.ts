@@ -56,7 +56,7 @@ function createSwaggerMethodConfig(
 function createSwaggerRequestBody(
   methodMetadata: ControllerMethodMetadata
 ): object | undefined {
-  if (!methodMetadata.requestSchema) {
+  if (!methodMetadata.request) {
     return undefined;
   }
 
@@ -64,7 +64,8 @@ function createSwaggerRequestBody(
     required: true,
     content: {
       "application/json": {
-        schema: methodMetadata.requestSchema
+        required: methodMetadata.request.required,
+        schema: methodMetadata.request.schema
       }
     }
   };
@@ -73,19 +74,29 @@ function createSwaggerRequestBody(
 function createSwaggerResponses(
   methodMetadata: ControllerMethodMetadata
 ): object | undefined {
-  if (!methodMetadata.responseSchema) {
+  const responses: Record<number, object> = {};
+
+  const keys = Object.keys(methodMetadata.responses || {})
+    .map(Number)
+    .filter(x => !isNaN(x));
+
+  if (keys.length === 0) {
     return undefined;
   }
 
-  return {
-    200: {
+  for (const statusCode of keys) {
+    const data = methodMetadata.responses![statusCode];
+    responses[statusCode] = {
+      description: data.description,
       content: {
         "application/json": {
-          schema: methodMetadata.responseSchema
+          schema: data.schema
         }
       }
-    }
-  };
+    };
+  }
+
+  return responses;
 }
 
 function createSwaggerMethodPathParameters(
