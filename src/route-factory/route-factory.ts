@@ -8,13 +8,10 @@ import {
   ControllerMetadata,
   ControllerMethodMetadata
 } from "../metadata";
+import { Controller } from "../types";
 
 import { createControllerMethodHandler } from "./method-handler-factory";
-
-export interface Controller {
-  constructor: Function;
-  prototype: Function;
-}
+import { getControllerMethods } from "../controller-utils";
 
 export function createControllerRoute(...controllers: Controller[]): Router {
   const router = Router();
@@ -36,25 +33,8 @@ function linkControllerToRoute(controller: Controller, route: Router) {
     );
   }
 
-  // Get all keys that exist on the controller.
-  const keys: string[] = [];
-  let scanTarget = controller;
-  do {
-    keys.push(...Object.getOwnPropertyNames(scanTarget));
-  } while ((scanTarget = Object.getPrototypeOf(scanTarget)));
-
-  // Scan the keys for controller methods, and make routes for them.
-  for (const key of keys) {
-    const method = (controller as any)[key];
-    if (typeof method !== "function") {
-      continue;
-    }
-
-    const methodMetadata = getControllerMethodMetadata(method);
-    if (!methodMetadata) {
-      continue;
-    }
-
+  const methods = getControllerMethods(controller);
+  for (const { metadata: methodMetadata, method } of methods) {
     linkControllerMethodToRoute(
       controller,
       controllerMetadata,
