@@ -9,7 +9,7 @@ import { getValidatorError } from "../ajv-utils";
 import { ControllerMethodMetadata } from "../metadata";
 import { QueryParamSettings, PathParamSettings } from "../decorators";
 
-import { Controller } from "./route-factory";
+import { Controller } from "../types";
 
 const ajv = new Ajv({ coerceTypes: true, useDefaults: true });
 
@@ -112,7 +112,7 @@ function createQueryParamValidator(
     if (!validate(data)) {
       throw createError(
         HttpStatusCodes.UNPROCESSABLE_ENTITY,
-        getValidatorError(validate, `Query parameter ${key} is invalid.`, key);
+        getValidatorError(validate, `Query parameter ${key} is invalid.`, key)
       );
     }
     // Data may have been coerced by ajv.

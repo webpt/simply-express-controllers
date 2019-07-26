@@ -27,10 +27,15 @@ function createSwaggerControllerPaths(
 
   const methods = getControllerMethods(controller);
 
-  const result: Record<string, object> = {};
+  const result: Record<string, Record<string, object>> = {};
   for (const { path, metadata } of methods) {
     const key = expressPathToSwaggerPath(path);
-    result[key] = createSwaggerMethodConfig(metadata);
+    if (!result[key]) {
+      result[key] = {};
+    }
+    result[key][metadata.method.toLowerCase()] = createSwaggerMethodConfig(
+      metadata
+    );
   }
   return result;
 }
@@ -58,7 +63,9 @@ function createSwaggerRequestBody(
   return {
     required: true,
     content: {
-      "application/json": methodMetadata.requestSchema
+      "application/json": {
+        schema: methodMetadata.requestSchema
+      }
     }
   };
 }
@@ -73,7 +80,9 @@ function createSwaggerResponses(
   return {
     200: {
       content: {
-        "application/json": methodMetadata.responseSchema
+        "application/json": {
+          schema: methodMetadata.responseSchema
+        }
       }
     }
   };
@@ -130,7 +139,7 @@ function expressPathToSwaggerPath(path: string): string {
     .join("/");
 }
 
-function omit<T, K extends string>(obj: T, ...props: K[]): Omit<T, K> {
+function omit(obj: any, ...props: string[]): any {
   const result: any = {};
   for (const key of Object.keys(obj)) {
     if (props.includes(key)) {
