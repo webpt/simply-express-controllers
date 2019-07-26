@@ -44,7 +44,7 @@ export interface QueryParamSettings extends Omit<JSONSchema6, "required"> {
   /**
    * The type of this parameter.
    */
-  type: "string" | "number" | "boolean";
+  type: "string" | "number" | "boolean" | "integer";
   /**
    * Whether this parameter is required.
    */
@@ -55,7 +55,7 @@ export interface PathParamSettings extends JSONSchema6 {
   /**
    * The type of this parameter.
    */
-  type: "string" | "number" | "boolean";
+  type: "string" | "number" | "boolean" | "integer";
 }
 
 /**
