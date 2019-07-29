@@ -4,7 +4,6 @@ import bodyParser from "body-parser";
 
 import {
   getControllerMetadata,
-  getControllerMethodMetadata,
   ControllerMetadata,
   ControllerMethodMetadata
 } from "../metadata";

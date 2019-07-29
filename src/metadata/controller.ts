@@ -1,9 +1,10 @@
 import { merge } from "lodash";
 
-import { ControllerSettings } from "../decorators/controller";
 import createSymbol from "../create-symbol";
 
-export interface ControllerMetadata extends ControllerSettings {}
+export interface ControllerMetadata {
+  path: string;
+}
 
 const ControllerMetadataSymbol = createSymbol("controller-metadata");
 
