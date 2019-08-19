@@ -276,7 +276,7 @@ class WidgetController {
 
     return result(widget)
       .status(201)
-      .header("Content-Location", "www.myserver.com/widgets/1");
+      .header("Content-Location", `www.myserver.com/widgets/${widget.id}`);
   }
 }
 ```
