@@ -3,4 +3,4 @@ export interface Controller {
   prototype: Function;
 }
 
-export type Method = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+export type Method = "GET" | "HEAD" | "POST" | "PATCH" | "PUT" | "DELETE";

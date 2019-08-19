@@ -23,6 +23,17 @@ export function get(
 }
 
 /**
+ * Annotates this method to be a HEAD request method.
+ * @param settings Settings for this request method.
+ */
+export function head(
+  path?: string,
+  settings?: ControllerMethodSettings
+): MethodDecorator {
+  return method("HEAD", path, settings);
+}
+
+/**
  * Annotates this method to be a POST request method.
  * @param settings Settings for this request method.
  */
@@ -31,6 +42,39 @@ export function post(
   settings?: ControllerMethodSettings
 ): MethodDecorator {
   return method("POST", path, settings);
+}
+
+/**
+ * Annotates this method to be a PUT request method.
+ * @param settings Settings for this request method.
+ */
+export function put(
+  path?: string,
+  settings?: ControllerMethodSettings
+): MethodDecorator {
+  return method("PUT", path, settings);
+}
+
+/**
+ * Annotates this method to be a DELETE request method.
+ * @param settings Settings for this request method.
+ */
+export function del(
+  path?: string,
+  settings?: ControllerMethodSettings
+): MethodDecorator {
+  return method("DELETE", path, settings);
+}
+
+/**
+ * Annotates this method to be a PATCH request method.
+ * @param settings Settings for this request method.
+ */
+export function patch(
+  path?: string,
+  settings?: ControllerMethodSettings
+): MethodDecorator {
+  return method("PATCH", path, settings);
 }
 
 /**
