@@ -34,10 +34,13 @@ export function createControllerMethodHandler(
     ? ajv.compile(requestSchema)
     : NoOpAjvValidator;
 
-  // TODO: Make validators for each status code.
-  // const responseValidator = methodMetadata.requestSchema
-  //   ? ajv.compile(methodMetadata.requestSchema)
-  //   : NoOpAjvValidator;
+  const responseValidators = mapValues(methodMetadata.responses, response => {
+    if (response.schema) {
+      return ajv.compile(response.schema);
+    } else {
+      return NoOpAjvValidator;
+    }
+  });
 
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -57,26 +60,38 @@ export function createControllerMethodHandler(
         queryValidators
       );
 
-      const result: ControllerMethodResult = await method.apply(
-        controller,
-        args
-      );
+      const methodResult = method.apply(controller, args);
 
-      // TODO: Validate response based on status code
-      // if (!responseValidator(result)) {
-      //   const errorMessage = getValidatorError(
-      //     responseValidator,
-      //     "Response did not match responseSchema.",
-      //     "response"
-      //   );
-      //   // Throw a real error so it can be logged.
-      //   //  Express will return an Internal Server Error in response.
-      //   throw new Error(errorMessage);
-      // }
+      let result: ControllerMethodResult;
+      if (methodResult instanceof Promise) {
+        result = await methodResult;
+      } else {
+        result = methodResult;
+      }
 
       const statusCode = result[StatusCode] || 200;
-
       const headers = result[Headers] || {};
+
+      const responseValidator = responseValidators[statusCode];
+
+      // Clean up the result in case the user specified
+      //  { "additionalProperties": false }
+      const validateTarget = {
+        ...result
+      };
+      delete validateTarget[StatusCode];
+      delete validateTarget[Headers];
+      if (responseValidator && !responseValidator(validateTarget)) {
+        const errorMessage = getValidatorError(
+          responseValidator,
+          "Response did not match responseSchema.",
+          "response"
+        );
+        // Throw a real error so it can be logged.
+        //  Express will return an Internal Server Error in response.
+        throw new Error(errorMessage);
+      }
+
       for (const key of Object.keys(headers)) {
         res.setHeader(key, headers[key]);
       }
