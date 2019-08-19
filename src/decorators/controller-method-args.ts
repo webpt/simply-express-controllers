@@ -15,6 +15,7 @@ export interface BodySettings {
    */
   schema?: JSONSchema6;
 }
+
 /**
  * Annotates this parameter to receive the request body.
  */
@@ -107,7 +108,8 @@ export function queryParam(
     appendControllerMethodMetadata(target[propertyKey], {
       queryParams: {
         [paramName]: {
-          schema: settings.schema
+          schema: settings.schema,
+          required: settings.required
         }
       },
       handlerArgs: partialArgs
