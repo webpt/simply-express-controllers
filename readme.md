@@ -116,7 +116,7 @@ Available settings:
 - `schema`
   JSON-Schema to validate and coerce the value against.
   If this is provided, the query parameter will be validated against the schema. If the validation fails,
-  the request will return `400 - Bad Request` and the method will not be invoked.
+  the request will return `422 - Unprocessable Entity` and the method will not be invoked.
   Additionally, valid data will be coerced to javascript types depending on the requested json-schema type. For example, `{type: "number"}` will cast the string to a number before passing it to your method.
 
 ```js

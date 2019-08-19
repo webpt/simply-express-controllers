@@ -9,8 +9,9 @@ import {
 } from "../metadata";
 import { Controller } from "../types";
 
-import { createControllerMethodHandler } from "./method-handler-factory";
 import { getControllerMethods } from "../controller-utils";
+
+import { MethodHandler } from "./method-handler";
 
 export function createControllerRoute(...controllers: Controller[]): Router {
   const router = Router();
@@ -51,11 +52,10 @@ function linkControllerMethodToRoute(
   methodMetadata: ControllerMethodMetadata,
   route: Router
 ) {
-  const handler = createControllerMethodHandler(
-    controller,
-    method,
-    methodMetadata
-  );
+  const methodHandler = new MethodHandler(method, methodMetadata, controller);
+  // handleRequest is pre-bound by MethodHandler
+  const handler = methodHandler.handleRequest;
+
   const path = pathUtils.posix.join(
     controllerMetadata.path || "/",
     methodMetadata.path || "/"

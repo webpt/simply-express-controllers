@@ -1,5 +1,7 @@
 import { ValidateFunction } from "ajv";
 
+export const NoOpAjvValidator: ValidateFunction = () => true;
+
 export function getValidatorError(
   validator: ValidateFunction,
   defaultMessage: string,
