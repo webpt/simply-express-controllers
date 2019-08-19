@@ -173,7 +173,7 @@ class WidgetController {
 
 While not specifically a feature of this library, it is recommended that error cases be handled by making use of express' handling of properly formatted thrown errors. We strongly recommend the `http-errors` library for this case.
 
-Remember to document your status codes using `@response`.
+Remember to document your status codes using `@response` for the benefit of swagger.
 
 ```js
 import { controller, get, response, pathParam } from "soapdish-controllers";
