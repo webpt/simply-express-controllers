@@ -128,7 +128,7 @@ class WidgetController {
 
   @get()
   async getWidgets(
-    @queryParam("limit", {type: "integer", minimum: 1})
+    @queryParam("limit", {required: false, schema: {type: "integer", minimum: 1}})
     limit: number
   ) {
     const widgets = await this._repo.getWidgets();
@@ -161,7 +161,7 @@ class WidgetController {
   // Create a handler for `/widgets/:widgetId`
   @get("/:widgetId")
   async getWidgetById(
-    @path("widgetId", {type: "integer"})
+    @path("widgetId", {schema: {type: "integer"}})
     widgetId: number
   ) {
     return await this._repo.getWidgetById(widgetId);
