@@ -6,9 +6,11 @@ import HttpStatusCodes from "http-status-codes";
 
 import { StatusCode, Headers, ControllerMethodResult } from "../method-result";
 import { getValidatorError } from "../ajv-utils";
-import { ControllerMethodMetadata, ParamMetadata } from "../metadata";
+import { ControllerMethodMetadata } from "../metadata";
 
 import { Controller } from "../types";
+
+import { MethodArgProcessor } from "./method-arg-processor";
 
 const ajv = new Ajv({ coerceTypes: true, useDefaults: true });
 
@@ -20,15 +22,6 @@ export function createControllerMethodHandler(
   method: Function,
   methodMetadata: ControllerMethodMetadata
 ): RequestHandler {
-  const queryValidators = mapValues(
-    methodMetadata.queryParams,
-    createQueryParamValidator
-  );
-  const pathValidators = mapValues(
-    methodMetadata.pathParams,
-    createPathParamValidator
-  );
-
   const requestSchema = get(methodMetadata, ["request", "schema"]);
   const requestValidator = requestSchema
     ? ajv.compile(requestSchema)
@@ -42,6 +35,8 @@ export function createControllerMethodHandler(
     }
   });
 
+  const argProcessor = new MethodArgProcessor(methodMetadata);
+
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!requestValidator(req.body)) {
@@ -53,12 +48,7 @@ export function createControllerMethodHandler(
         throw createError(HttpStatusCodes.BAD_REQUEST, errorMessage);
       }
 
-      const args = collectMethodArgs(
-        req,
-        methodMetadata,
-        pathValidators,
-        queryValidators
-      );
+      const args = argProcessor.collectMethodArgs(req);
 
       const methodResult = method.apply(controller, args);
 
@@ -101,95 +91,4 @@ export function createControllerMethodHandler(
       next(e);
     }
   };
-}
-
-function createQueryParamValidator(
-  metadata: ParamMetadata,
-  key: string
-): ValidateFunction {
-  // We need to pass the data by object, for type coersion and default values, and requiredness.
-  const validate = ajv.compile({
-    type: "object",
-    properties: {
-      value: {
-        ...metadata.schema,
-        // Remove our required: true/false value, as it is not standard json-schema.
-        required: undefined
-      }
-    },
-    required: metadata.required ? ["value"] : []
-  });
-
-  return (value: any) => {
-    const data = { value };
-    if (metadata.required && value === undefined) {
-      throw createError(
-        HttpStatusCodes.BAD_REQUEST,
-        `Query parameter ${key} is required.`
-      );
-    }
-    if (!validate(data)) {
-      throw createError(
-        HttpStatusCodes.UNPROCESSABLE_ENTITY,
-        getValidatorError(validate, `Query parameter ${key} is invalid.`, key)
-      );
-    }
-    // Data may have been coerced by ajv.
-    return data.value;
-  };
-}
-
-function createPathParamValidator(metadata: ParamMetadata): ValidateFunction {
-  // We need to pass the data by object, for type coersion and default values, and requiredness.
-  const validate = ajv.compile({
-    type: "object",
-    properties: {
-      value: metadata.schema
-    },
-    required: metadata.required ? ["value"] : []
-  });
-
-  return (value: any) => {
-    const data = { value };
-    if (!validate(data)) {
-      // We could pass the validation error here, but a malformed path is typically 404d.
-      throw createError(HttpStatusCodes.NOT_FOUND);
-    }
-    // Data may have been coerced by ajv.
-    return data.value;
-  };
-}
-
-function collectMethodArgs(
-  req: Request,
-  methodMetadata: ControllerMethodMetadata,
-  pathValidators: Record<string, ValidateFunction>,
-  queryValidators: Record<string, ValidateFunction>
-): any[] {
-  return methodMetadata.handlerArgs.map(argMetadata => {
-    switch (argMetadata.type) {
-      case "body":
-        return req.body;
-      case "pathParam": {
-        const { paramName } = argMetadata;
-        const validator = pathValidators[paramName];
-        let value = req.params[paramName];
-        if (validator) {
-          value = validator(value);
-        }
-        return value;
-      }
-      case "queryParam": {
-        const { paramName } = argMetadata;
-        const validator = queryValidators[paramName];
-        let value = req.query[paramName];
-        if (validator) {
-          value = validator(value);
-        }
-        return value;
-      }
-      default:
-        return undefined;
-    }
-  });
 }
