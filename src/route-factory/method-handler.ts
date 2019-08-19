@@ -19,10 +19,24 @@ import { maybeAwaitPromise } from "../promise-utils";
 const ajv = new Ajv({ coerceTypes: true, useDefaults: true });
 
 export class MethodHandler {
+  /**
+   * Validator for the request body.
+   */
   private _requestValidator: ValidateFunction;
+
+  /**
+   * Validators for responses indexed by status code.
+   */
   private _responseValidators: Record<number, ValidateFunction>;
 
+  /**
+   * Validators for path params indexed by param name.
+   */
   private _pathValidators: Record<string, ValidateFunction>;
+
+  /**
+   * Validators for query params indexed by param name.
+   */
   private _queryValidators: Record<string, ValidateFunction>;
 
   constructor(
@@ -30,13 +44,17 @@ export class MethodHandler {
     private _methodMetadata: ControllerMethodMetadata,
     private _controller: Controller
   ) {
+    // Pre-bind the handleRequest function so we can send it to express routes.
     this.handleRequest = this.handleRequest.bind(this);
 
+    // Build the request validator.
     const requestSchema = get(_methodMetadata, ["request", "schema"]);
     this._requestValidator = requestSchema
       ? ajv.compile(requestSchema)
       : NoOpAjvValidator;
 
+    // Build the response validators.
+    //  These are mapped based on status codes.
     this._responseValidators = mapValues(
       _methodMetadata.responses,
       response => {
@@ -48,10 +66,13 @@ export class MethodHandler {
       }
     );
 
+    // Build validators for query params.
     this._queryValidators = mapValues(
       _methodMetadata.queryParams,
       createQueryParamValidator
     );
+
+    // Build validators for path params.
     this._pathValidators = mapValues(
       _methodMetadata.pathParams,
       createPathParamValidator

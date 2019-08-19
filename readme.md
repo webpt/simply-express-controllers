@@ -76,6 +76,8 @@ Available settings are
   The schema is also used by the swagger documentation.
 
 Note that in the example, we do not specify a status code when sending our result, so it will default to `200 - OK`.
+The presense of the `@response` decorator does not affect the status code we use with our result, but instead documents
+and validates the response when the status code is used.
 
 ```js
 import { controller, get, response } from "soapdish-controllers";
@@ -109,6 +111,8 @@ class WidgetController {
 
 Query parameters can be utilized by adding a `@queryParam(name, settings?)` decorator onto a method argument. The value of the query parameter will be supplied into the method argument when a request is made.
 
+When decorating a method argument, the argument name does not need to match the query parameter name.
+
 Available settings:
 
 - `required`
@@ -129,10 +133,10 @@ class WidgetController {
   @get()
   async getWidgets(
     @queryParam("limit", {required: false, schema: {type: "integer", minimum: 1}})
-    limit: number
+    widgetLimit: number
   ) {
     const widgets = await this._repo.getWidgets();
-    return widgets.slice(0, limit);
+    return widgets.slice(0, widgetLimit);
   }
 }
 ```
@@ -143,13 +147,15 @@ This library supports path parameters in the same style as express router path p
 
 Accessing path parameters is similar to accessing query params, and is done with the `@pathParam(name, settings?)` decorator. In this case, `name` must be the name of an express path parameter present in either the controller or method path. For example, `@get("/foo/:bar")` will create a path param called `bar`, and `@controller("/widgets/:style/list")` will create a path param called `style`.
 
+When decorating a method argument, the argument name does not need to match the path parameter name.
+
 Available settings:
 
 - `schema`
   JSON-Schema to validate and coerce the value against.
   If this is provided, the path parameter will be validated against the schema. If the validation fails,
   the request will return `404 - Not Found` and the method will not be invoked.
-  Additionally, valid data will be cocerced to javascript types depending on the requested json-schema type. For example, `{type: "number"}` will cast the string to a number before passing it to your method.
+  Additionally, valid data will be cocerced to javascript types depending on the requested json-schema type. For example, `{type: "number"}` and `{type: "integer"}` will cast the string to a number.
 
 ```js
 import { controller, get, pathParam } from "soapdish-controllers";
@@ -159,9 +165,9 @@ class WidgetController {
   constructor(private _repo: WidgetRepo) {}
 
   // Create a handler for `/widgets/:widgetId`
-  @get("/:widgetId")
+  @get("/:widget_id")
   async getWidgetById(
-    @path("widgetId", {schema: {type: "integer"}})
+    @path("widget_id", {schema: {type: "integer"}})
     widgetId: number
   ) {
     return await this._repo.getWidgetById(widgetId);
