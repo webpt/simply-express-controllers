@@ -40,7 +40,17 @@ export interface ParamMetadata {
 export type ControllerMethodArgMetadata =
   | QueryParamControllerMethodArgMetadata
   | PathParamControllerMethodArgMetadata
-  | BodyControllerMethodArgMetadata;
+  | BodyControllerMethodArgMetadata
+  | RequestControllerMethodArgMetadata
+  | ResponseControllerMethodArgMetadata;
+
+export interface RequestControllerMethodArgMetadata {
+  type: "request";
+}
+
+export interface ResponseControllerMethodArgMetadata {
+  type: "response";
+}
 
 export interface QueryParamControllerMethodArgMetadata {
   type: "queryParam";

@@ -1,4 +1,10 @@
-import { body, pathParam, queryParam } from "./controller-method-args";
+import {
+  body,
+  pathParam,
+  queryParam,
+  expressRequest,
+  expressResponse
+} from "./controller-method-args";
 import {
   getControllerMethodMetadata,
   PathParamControllerMethodArgMetadata,
@@ -118,6 +124,40 @@ describe("Controller Method Argument Decorators", function() {
         TestClass.prototype["testMethod"]
       )!;
       expect(metadata.queryParams![paramName].required).toEqual(required);
+    });
+  });
+
+  describe("@expressRequest", function() {
+    class TestClass {
+      testMethod(
+        dummyArg: number,
+        @expressRequest()
+        request: object
+      ) {}
+    }
+
+    it("sets the argument to the request type", function() {
+      const metadata = getControllerMethodMetadata(
+        TestClass.prototype["testMethod"]
+      )!;
+      expect(metadata.handlerArgs[1].type).toEqual("request");
+    });
+  });
+
+  describe("@expressResponse", function() {
+    class TestClass {
+      testMethod(
+        dummyArg: number,
+        @expressResponse()
+        response: object
+      ) {}
+    }
+
+    it("sets the argument to the response type", function() {
+      const metadata = getControllerMethodMetadata(
+        TestClass.prototype["testMethod"]
+      )!;
+      expect(metadata.handlerArgs[1].type).toEqual("response");
     });
   });
 });

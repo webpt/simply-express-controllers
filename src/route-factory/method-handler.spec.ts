@@ -5,7 +5,9 @@ import {
   ControllerMethodMetadata,
   BodyControllerMethodArgMetadata,
   PathParamControllerMethodArgMetadata,
-  QueryParamControllerMethodArgMetadata
+  QueryParamControllerMethodArgMetadata,
+  RequestControllerMethodArgMetadata,
+  ResponseControllerMethodArgMetadata
 } from "../metadata";
 import { MethodHandler } from "./method-handler";
 import { result } from "../method-result";
@@ -392,6 +394,50 @@ describe("Method Handler", function() {
 
         expect(next).not.toBeCalled();
         expect(method).toBeCalledWith(expectedParamValue);
+      });
+    });
+
+    describe("request", function() {
+      it("provides the request", async function() {
+        const method = jest.fn().mockReturnValue({});
+        const firstArg: RequestControllerMethodArgMetadata = {
+          type: "request"
+        };
+        const metadata = createMethodMetadata({
+          handlerArgs: [firstArg]
+        });
+        const handler = new MethodHandler(method, metadata, dummyController);
+
+        const req = createRequest();
+        const res = createResponse();
+        const next = jest.fn();
+
+        await handler.handleRequest(req, res, next);
+
+        expect(next).not.toBeCalled();
+        expect(method).toBeCalledWith(req);
+      });
+    });
+
+    describe("response", function() {
+      it("provides the response", async function() {
+        const method = jest.fn().mockReturnValue({});
+        const firstArg: ResponseControllerMethodArgMetadata = {
+          type: "response"
+        };
+        const metadata = createMethodMetadata({
+          handlerArgs: [firstArg]
+        });
+        const handler = new MethodHandler(method, metadata, dummyController);
+
+        const req = createRequest();
+        const res = createResponse();
+        const next = jest.fn();
+
+        await handler.handleRequest(req, res, next);
+
+        expect(next).not.toBeCalled();
+        expect(method).toBeCalledWith(res);
       });
     });
   });

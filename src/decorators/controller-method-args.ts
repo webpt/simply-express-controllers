@@ -116,3 +116,33 @@ export function queryParam(
     });
   };
 }
+
+/**
+ * Annotates the parameter to receive the express Request object.
+ */
+export function expressRequest(): ParameterDecorator {
+  return (target: any, propertyKey: string | symbol, methodIndex: number) => {
+    const partialArgs: ControllerMethodArgMetadata[] = [];
+    partialArgs[methodIndex] = {
+      type: "request"
+    };
+    appendControllerMethodMetadata(target[propertyKey], {
+      handlerArgs: partialArgs
+    });
+  };
+}
+
+/**
+ * Annotates the parameter to receive the express Response object.
+ */
+export function expressResponse(): ParameterDecorator {
+  return (target: any, propertyKey: string | symbol, methodIndex: number) => {
+    const partialArgs: ControllerMethodArgMetadata[] = [];
+    partialArgs[methodIndex] = {
+      type: "response"
+    };
+    appendControllerMethodMetadata(target[propertyKey], {
+      handlerArgs: partialArgs
+    });
+  };
+}
