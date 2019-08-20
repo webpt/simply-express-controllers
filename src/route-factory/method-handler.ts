@@ -107,12 +107,25 @@ export class MethodHandler {
     // The method may or may not have returned a promise.  Await it if so.
     let result = await maybeAwaitPromise<ControllerMethodResult>(methodResult);
 
+    if (!result) {
+      // Throw an error to the user.  Express will return this into a 500.
+      throw new Error("Controller methods must return a result.");
+    }
+
     // Yank the status code and headers out of the symbol properties used by result().
     const statusCode = result[StatusCode] || 200;
     const headers = result[Headers] || {};
 
+    // Clean away our special keys so they do not confuse things.
+    //  This is mostly done for tests and validators.
+    const httpResult = {
+      ...result
+    };
+    delete httpResult[StatusCode];
+    delete httpResult[Headers];
+
     // Ensure the response matches the documented response.
-    this._validateResponse(statusCode, result);
+    this._validateResponse(statusCode, httpResult);
 
     // Set any headers that were requested.
     for (const key of Object.keys(headers)) {
@@ -123,7 +136,7 @@ export class MethodHandler {
     res.status(statusCode);
 
     // Send the result.
-    res.send(result);
+    res.send(httpResult);
   }
 
   private _validateRequest(req: Request) {
@@ -152,19 +165,7 @@ export class MethodHandler {
       return;
     }
 
-    /*
-      Clean up the result in case the user specified { "additionalProperties": false }
-      in the schema.
-
-      In theory this isn't needed, as typically symbols are not enumerated
-      when enumerating object keys.
-    */
-    const validateTarget = {
-      ...result
-    };
-    delete validateTarget[StatusCode];
-    delete validateTarget[Headers];
-    if (!responseValidator(validateTarget)) {
+    if (!responseValidator(result)) {
       const errorMessage = getValidatorError(
         responseValidator,
         "Response did not match responseSchema.",
@@ -264,7 +265,7 @@ function createPathParamValidator(metadata: ParamMetadata): ValidateFunction {
   const validate = ajv.compile({
     type: "object",
     properties: {
-      value: metadata.schema
+      value: metadata.schema || {}
     },
     required: metadata.required ? ["value"] : []
   });
