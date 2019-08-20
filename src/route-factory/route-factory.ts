@@ -76,5 +76,11 @@ function linkControllerMethodToRoute(
     case "DELETE":
       route.delete(path, handler);
       break;
+    case "TRACE":
+      route.trace(path, handler);
+      break;
+    case "CONNECT":
+      route.connect(path, handler);
+      break;
   }
 }
