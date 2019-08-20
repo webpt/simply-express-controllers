@@ -295,6 +295,36 @@ class WidgetController {
 }
 ```
 
+### Returning cookies
+
+Cookies can also be sent with the help of `result().cookie(name, value, settings?)`.
+
+The settings parameter is passed directly to express, and supports all the same values as the options object of `Response.cookie()`.
+For possible values, see the [express documentation](https://expressjs.com/en/api.html#res.cookie).
+
+```js
+import { controller, post, body, result } from "soapdish-controllers";
+
+@controller("/user")
+class UserController {
+  constructor(private _auth: UserAuthenticator) {}
+
+  @post("/login")
+  async authenticate(
+    @body()
+    payload: LoginPayload
+  ) {
+    const token = this._auth.loginUser(payload);
+
+    return result({})
+      .status(200)
+      .cookie("local_access_token", token, {
+        maxAge: 60 * 60 * 1000
+      });
+  }
+}
+```
+
 ### Testing method results
 
 In all cases, your controller methods should return the body to send as the response. This is still the case when the `result()` function is used to apply a status code and headers.

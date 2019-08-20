@@ -13,7 +13,12 @@ import {
   ControllerMethodArgMetadata
 } from "../metadata";
 import { Controller } from "../types";
-import { ControllerMethodResult, StatusCode, Headers } from "../method-result";
+import {
+  ControllerMethodResult,
+  StatusCode,
+  Headers,
+  Cookies
+} from "../method-result";
 import { maybeAwaitPromise } from "../promise-utils";
 
 const ajv = new Ajv({ coerceTypes: true, useDefaults: true });
@@ -115,6 +120,7 @@ export class MethodHandler {
     // Yank the status code and headers out of the symbol properties used by result().
     const statusCode = result[StatusCode] || 200;
     const headers = result[Headers] || {};
+    const cookies = result[Cookies] || {};
 
     // Clean away our special keys so they do not confuse things.
     //  This is mostly done for tests and validators.
@@ -123,6 +129,7 @@ export class MethodHandler {
     };
     delete httpResult[StatusCode];
     delete httpResult[Headers];
+    delete httpResult[Cookies];
 
     // Ensure the response matches the documented response.
     this._validateResponse(statusCode, httpResult);
@@ -130,6 +137,13 @@ export class MethodHandler {
     // Set any headers that were requested.
     for (const key of Object.keys(headers)) {
       res.setHeader(key, headers[key]);
+    }
+
+    for (const key of Object.keys(cookies)) {
+      const settings = cookies[key];
+      const { value } = settings;
+      delete settings.value;
+      res.cookie(key, value, settings);
     }
 
     // Set the status code.

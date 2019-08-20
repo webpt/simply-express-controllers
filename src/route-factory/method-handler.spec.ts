@@ -10,7 +10,7 @@ import {
   ResponseControllerMethodArgMetadata
 } from "../metadata";
 import { MethodHandler } from "./method-handler";
-import { result } from "../method-result";
+import { result, CookieSettings } from "../method-result";
 
 describe("Method Handler", function() {
   class DummyController {}
@@ -572,81 +572,118 @@ describe("Method Handler", function() {
     });
   });
 
-  it("sets headers according to the response", async function() {
-    const headerName1 = "Header1";
-    const headerValue1 = "Foo";
-    const headerName2 = "Header2";
-    const headerValue2 = "Bar";
-    const methodResult = result({ foo: 42 })
-      .header(headerName1, headerValue1)
-      .header(headerName2, headerValue2);
+  describe("Response Transmission", function() {
+    it("sets headers according to the response", async function() {
+      const headerName1 = "Header1";
+      const headerValue1 = "Foo";
+      const headerName2 = "Header2";
+      const headerValue2 = "Bar";
+      const methodResult = result({ foo: 42 })
+        .header(headerName1, headerValue1)
+        .header(headerName2, headerValue2);
 
-    const method = jest.fn().mockReturnValue(Promise.resolve(methodResult));
-    const metadata = createMethodMetadata();
-    const handler = new MethodHandler(method, metadata, dummyController);
+      const method = jest.fn().mockReturnValue(Promise.resolve(methodResult));
+      const metadata = createMethodMetadata();
+      const handler = new MethodHandler(method, metadata, dummyController);
 
-    const req = createRequest({});
-    const res = createResponse();
-    const next = jest.fn();
+      const req = createRequest({});
+      const res = createResponse();
+      const next = jest.fn();
 
-    await handler.handleRequest(req, res, next);
+      await handler.handleRequest(req, res, next);
 
-    expect(next).not.toBeCalled();
-    expect(res.setHeader).toBeCalledWith(headerName1, headerValue1);
-    expect(res.setHeader).toBeCalledWith(headerName2, headerValue2);
-  });
+      expect(next).not.toBeCalled();
+      expect(res.setHeader).toBeCalledWith(headerName1, headerValue1);
+      expect(res.setHeader).toBeCalledWith(headerName2, headerValue2);
+    });
 
-  it("sets status code according to the response", async function() {
-    const statusCode = HttpStatusCodes.IM_A_TEAPOT;
-    const methodResult = result({ foo: 42 }).status(statusCode);
+    it("sets status code according to the response", async function() {
+      const statusCode = HttpStatusCodes.IM_A_TEAPOT;
+      const methodResult = result({ foo: 42 }).status(statusCode);
 
-    const method = jest.fn().mockReturnValue(Promise.resolve(methodResult));
-    const metadata = createMethodMetadata();
-    const handler = new MethodHandler(method, metadata, dummyController);
+      const method = jest.fn().mockReturnValue(Promise.resolve(methodResult));
+      const metadata = createMethodMetadata();
+      const handler = new MethodHandler(method, metadata, dummyController);
 
-    const req = createRequest({});
-    const res = createResponse();
-    const next = jest.fn();
+      const req = createRequest({});
+      const res = createResponse();
+      const next = jest.fn();
 
-    await handler.handleRequest(req, res, next);
+      await handler.handleRequest(req, res, next);
 
-    expect(next).not.toBeCalled();
-    expect(res.status).toBeCalledWith(statusCode);
-  });
+      expect(next).not.toBeCalled();
+      expect(res.status).toBeCalledWith(statusCode);
+    });
 
-  it("sends the raw result", async function() {
-    const methodResult = { foo: 42 };
+    it("sets cookies according to the response", async function() {
+      const cookieName1 = "Cookie1";
+      const cookieValue1 = "Foo";
+      const cookieName2 = "Header2";
+      const cookieValue2 = "Bar";
+      const cookieSettings2: CookieSettings = {
+        domain: "www.foobar.com",
+        path: "/foo",
+        expires: false
+      };
+      const methodResult = result({ foo: 42 })
+        .cookie(cookieName1, cookieValue1)
+        .cookie(cookieName2, cookieValue2, cookieSettings2);
 
-    const method = jest.fn().mockReturnValue(Promise.resolve(methodResult));
-    const metadata = createMethodMetadata();
-    const handler = new MethodHandler(method, metadata, dummyController);
+      const method = jest.fn().mockReturnValue(Promise.resolve(methodResult));
+      const metadata = createMethodMetadata();
+      const handler = new MethodHandler(method, metadata, dummyController);
 
-    const req = createRequest({});
-    const res = createResponse();
-    const next = jest.fn();
+      const req = createRequest({});
+      const res = createResponse();
+      const next = jest.fn();
 
-    await handler.handleRequest(req, res, next);
+      await handler.handleRequest(req, res, next);
 
-    expect(next).not.toBeCalled();
-    expect(res.send).toBeCalledWith(methodResult);
-  });
+      expect(next).not.toBeCalled();
+      expect(res.cookie).toBeCalledWith(cookieName1, cookieValue1, {});
+      expect(res.cookie).toBeCalledWith(
+        cookieName2,
+        cookieValue2,
+        cookieSettings2
+      );
+    });
 
-  it("sends the result when result() is used", async function() {
-    const rawResult = { foo: 42 };
-    const methodResult = result(rawResult).status(HttpStatusCodes.IM_A_TEAPOT);
+    it("sends the raw result", async function() {
+      const methodResult = { foo: 42 };
 
-    const method = jest.fn().mockReturnValue(Promise.resolve(methodResult));
-    const metadata = createMethodMetadata();
-    const handler = new MethodHandler(method, metadata, dummyController);
+      const method = jest.fn().mockReturnValue(Promise.resolve(methodResult));
+      const metadata = createMethodMetadata();
+      const handler = new MethodHandler(method, metadata, dummyController);
 
-    const req = createRequest({});
-    const res = createResponse();
-    const next = jest.fn();
+      const req = createRequest({});
+      const res = createResponse();
+      const next = jest.fn();
 
-    await handler.handleRequest(req, res, next);
+      await handler.handleRequest(req, res, next);
 
-    expect(next).not.toBeCalled();
-    expect(res.send).toBeCalledWith(rawResult);
+      expect(next).not.toBeCalled();
+      expect(res.send).toBeCalledWith(methodResult);
+    });
+
+    it("sends the result when result() is used", async function() {
+      const rawResult = { foo: 42 };
+      const methodResult = result(rawResult).status(
+        HttpStatusCodes.IM_A_TEAPOT
+      );
+
+      const method = jest.fn().mockReturnValue(Promise.resolve(methodResult));
+      const metadata = createMethodMetadata();
+      const handler = new MethodHandler(method, metadata, dummyController);
+
+      const req = createRequest({});
+      const res = createResponse();
+      const next = jest.fn();
+
+      await handler.handleRequest(req, res, next);
+
+      expect(next).not.toBeCalled();
+      expect(res.send).toBeCalledWith(rawResult);
+    });
   });
 });
 
@@ -667,6 +704,7 @@ function createRequest(opts?: RequestOpts): Request {
 function createResponse(): Response {
   const res: Response = {} as any;
   res.setHeader = jest.fn().mockReturnValue(res);
+  res.cookie = jest.fn().mockReturnValue(res);
   res.status = jest.fn().mockReturnValue(res);
   res.send = jest.fn().mockReturnValue(res);
   return res;

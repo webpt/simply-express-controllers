@@ -12,6 +12,62 @@ export interface ResultBuilder {
    * @param value The value of the header to set.
    */
   header(name: string, value: string): ResultBuilder;
+
+  /**
+   * Sets a cookie on the result.
+   * @param name The name of the cookie.
+   * @param value The value of the cookie.
+   * @param settings Additional cookie settings.
+   */
+  cookie(name: string, value: string, settings?: CookieSettings): ResultBuilder;
+}
+
+/**
+ * Configuration options for setting cookies.
+ *
+ * Values inherited from express api.
+ */
+export interface CookieSettings {
+  /**
+   * Sets the domain of the cookie.  Defaults to the app's domain name.
+   */
+  domain?: string;
+
+  /**
+   * Expiry date of the cookie in GMT. If not specified or set to 0, creates a session cookie.
+   */
+  expires?: Date | boolean;
+
+  /**
+   * Flags the cookie to be accessible only by the web server.
+   */
+  httpOnly?: boolean;
+
+  /**
+   * Convenient option for setting the expiry time relative to the current time in milliseconds.
+   */
+  maxAge?: number;
+
+  /**
+   * Path for the cookie. Defaults to “/”.
+   */
+  path?: string;
+
+  /**
+   * Marks the cookie to be used with HTTPS only.
+   */
+  secure?: boolean;
+
+  /**
+   * Indicates if the cookie should be signed.
+   */
+  signed?: boolean;
+
+  /**
+   * Value of the “SameSite” Set-Cookie attribute.
+   * More information at https://tools.ietf.org/html/draft-ietf-httpbis-cookie-same-site-00#section-4.1.1.
+   */
+  sameSite?: boolean | string;
 }
 
 /**
@@ -24,10 +80,20 @@ export const StatusCode = Symbol("status-code");
  */
 export const Headers = Symbol("headers");
 
+/**
+ * Symbol for specifying cookies for a controller method result.
+ */
+export const Cookies = Symbol("cookies");
+
 export interface ControllerMethodResult {
   [StatusCode]: number;
   [Headers]: Record<string, string>;
+  [Cookies]: Record<string, ControllerMethodResultCookie>;
   [key: string]: any;
+}
+
+export interface ControllerMethodResultCookie extends CookieSettings {
+  value: string;
 }
 
 /**
@@ -41,7 +107,8 @@ export function result(body: any): ResultBuilder {
 function attachResultBuilder(body: any) {
   const newBody = Object.create({
     status: resultBuilderStatus,
-    header: resultBuilderHeader
+    header: resultBuilderHeader,
+    cookie: resultBuilderCookie
   });
   Object.assign(newBody, body);
   return newBody;
@@ -60,6 +127,21 @@ function resultBuilderHeader(this: any, name: string, value: string) {
     [Headers]: {
       ...(this[Headers] || {}),
       [name]: value
+    }
+  });
+}
+
+function resultBuilderCookie(
+  this: any,
+  name: string,
+  value: string,
+  settings?: CookieSettings
+) {
+  return attachResultBuilder({
+    ...this,
+    [Cookies]: {
+      ...(this[Cookies] || {}),
+      [name]: { value, ...(settings || {}) }
     }
   });
 }
