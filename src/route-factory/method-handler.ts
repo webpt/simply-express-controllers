@@ -84,10 +84,14 @@ export class MethodHandler {
    *
    * This method is pre-bound.  Usage of `this` is safe when
    * this method is passed to the router.
+   *
+   * This method is async to assist with testing.  Its promise does
+   * not need to be consumed, and errors will be passed to the
+   * express `next` function.
    */
-  handleRequest(req: Request, res: Response, next: NextFunction) {
+  async handleRequest(req: Request, res: Response, next: NextFunction) {
     // Catch any errors and pass them to express.
-    this._executeRequest(req, res).catch(next);
+    await this._executeRequest(req, res).catch(next);
   }
 
   private async _executeRequest(req: Request, res: Response) {
@@ -115,11 +119,22 @@ export class MethodHandler {
       res.setHeader(key, headers[key]);
     }
 
-    // Send the status code and the result.
-    res.status(statusCode).send(result);
+    // Set the status code.
+    res.status(statusCode);
+
+    // Send the result.
+    res.send(result);
   }
 
   private _validateRequest(req: Request) {
+    if (
+      this._methodMetadata.request &&
+      this._methodMetadata.request.required &&
+      req.body == null
+    ) {
+      throw createError(HttpStatusCodes.BAD_REQUEST, "A body is required.");
+    }
+
     if (!this._requestValidator(req.body)) {
       const errorMessage = getValidatorError(
         this._requestValidator,
