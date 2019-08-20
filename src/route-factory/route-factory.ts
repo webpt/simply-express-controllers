@@ -82,5 +82,11 @@ function linkControllerMethodToRoute(
     case "CONNECT":
       route.connect(path, handler);
       break;
+    default:
+      throw new Error(
+        `Unknown method ${methodMetadata.method} for controller function ${
+          method.name
+        }.`
+      );
   }
 }
