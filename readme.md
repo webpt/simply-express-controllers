@@ -1,12 +1,12 @@
 # soapdish-controllers
 
-No heavy frameworks, no IOC, just a simple robust express controller library.
+No heavy frameworks, no IOC, just a simple robust express controller library using modern ES6 decorators.
 
-Create synchronous and asynchronous express route controllers free of boilerplate with full json schema validation. Outputs clean express routers and integrates well into whatever software architecture you choose. Also supports the automatic generation of swagger 3.0 path documentation.
+Create synchronous and asynchronous express route controllers free of boilerplate with full json schema validation. Outputs clean express routers and integrates well into whatever software architecture you choose. Also supports the automatic generation of swagger 3.0 documentation.
 
 ## Why we built this
 
-Express route controllers should be simple and declarative. However, all of the available solutions we trialed came up short. Some provided too little; acting as little more than aliases around the express router functions. Others tried to take complete control of the application, mandating the use of home grown IOC containers, forcing the application into a pre-chosen program architecture, and hiding the express app behind walls of abstraction.
+Express route controllers should be simple and declarative. However, all of the available solutions we trialed came up short. Some provided too little; acting as little more than aliases around the express router functions. Others tried to take complete control of the application, mandating the use of home-grown IOC containers, forcing the application into a pre-chosen program architecture, and hiding the express app behind walls of abstraction.
 
 This library seeks to find the perfect middle ground. It solves the issue of boilerplate code and provides a robust system of validation and documentation, while still producing simple express routers and leaving the user in control of their own express configuration.
 
@@ -379,6 +379,14 @@ app.use(route);
 
 app.listen(8080);
 ```
+
+There are many ways of automating the collection of controllers, and the choice is left up to you.
+
+Some possible solutions:
+
+- Collect all controllers in an index file, and export as an array.
+- Automatically collect controllers from a known folder using [require-dir](https://www.npmjs.com/package/require-dir).
+- Use an IOC container and bind all controllers under a common identifier.
 
 ### Generating Swagger documentation for your controllers
 
