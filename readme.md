@@ -1,10 +1,18 @@
 # soapdish-controllers
 
-A simple express controller library. This library generates express routes and swagger docs from decorated controller classes.
+No heavy frameworks, no IOC, just a simple robust express controller library.
+
+Create synchronous and asynchronous express route controllers free of boilerplate with full json schema validation. Outputs clean express routers and integrates well into whatever software architecture you choose. Also supports the automatic generation of swagger 3.0 path documentation.
+
+## Why we built this
+
+Express route controllers should be simple and declarative. However, all of the available solutions we trialed came up short. Some provided too little; acting as little more than aliases around the express router functions. Others tried to take complete control of the application, mandating the use of home grown IOC containers, forcing the application into a pre-chosen program architecture, and hiding the express app behind walls of abstraction.
+
+This library seeks to find the perfect middle ground. It solves the issue of boilerplate code and provides a robust system of validation and documentation, while still producing simple express routers and leaving the user in control of their own express configuration.
 
 ## Design Philosophy
 
-This library is designed to be narrowly focused on solving the creation of express controllers. As such, it does not do anything other than create routes and swagger path docs. The creation and configuration of the express app, and the chosen program architecture is entirely up to you.
+This library is designed to be narrowly focused on solving the creation of express controllers. As such, it does not do anything other than create routes and swagger path docs. The creation and configuration of the express app, and the chosen program architecture, is entirely up to you.
 
 ## Usage
 
