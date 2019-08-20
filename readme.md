@@ -12,7 +12,7 @@ This library seeks to find the perfect middle ground. It solves the issue of boi
 
 ## Design Philosophy
 
-This library is designed to be narrowly focused on solving the creation of express controllers. As such, it does not do anything other than create routes and swagger path docs. The creation and configuration of the express app, and the chosen program architecture, is entirely up to you.
+This library is designed to be narrowly focused on solving the creation of express controllers. As such, it does not do anything other than create routes, validate input and output, and generate swagger documentation. The creation and configuration of the express app, and the chosen program architecture, is entirely up to you.
 
 ## Usage
 
