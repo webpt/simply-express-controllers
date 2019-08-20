@@ -309,6 +309,46 @@ expect(result[Headers]["Content-Location"]).equals(
 );
 ```
 
+### Retrieving the express Request and Response
+
+Although this library attempts to provide decorators for retrieving information from the request and response, no library can cover all use cases and sometimes direct access to the request and response objects are needed.
+
+To get direct access to the request and response objects, use the `@expressRequest()` and `@expressResponse()` method argument decorators.
+
+Note that there is no way to suppress the sending of the response on method completion, so attempting to use Response.send() may result in an error.
+
+```js
+import { controller, get, expressRequest, expressResponse } from "soapdish-controllers";
+import { Request, Response } from "express";
+import createError from "http-errors";
+
+@controller("/widgets")
+class WidgetController {
+  constructor(private _repo: WidgetRepo) {}
+
+  @get()
+  async getWidget(
+    @expressRequest()
+    req: Request,
+    @expressResponse()
+    res: Response
+  ) {
+    const user = req.user;
+    if (!userCanAccessWidgets(user)) {
+      throw createError(403, "Access Denied");
+    }
+
+    const widget = await this._repo.createWidget(widget);
+
+    res.locals.widgetsFetched = true;
+
+    return result(widget)
+      .status(201)
+      .header("Content-Location", `www.myserver.com/widgets/${widget.id}`);
+  }
+}
+```
+
 ### Connecting your controller to express
 
 The end result of soapdish-controllers is to create express Routers. This is done through the `createControllerRoute(...controllers)` function. This function will take any number of controller instances, and create a single express Router to handle all of them.

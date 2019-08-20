@@ -99,7 +99,7 @@ export class MethodHandler {
     this._validateRequest(req);
 
     // Collect the arguments for the method based on method arg decorators.
-    const args = this._collectMethodArgs(req);
+    const args = this._collectMethodArgs(req, res);
 
     // Execute the method to handle the request.
     const methodResult = this._method.apply(this._controller, args);
@@ -177,12 +177,18 @@ export class MethodHandler {
     }
   }
 
-  private _collectMethodArgs(req: Request): any[] {
+  private _collectMethodArgs(req: Request, res: Response): any[] {
     const { handlerArgs } = this._methodMetadata;
-    return handlerArgs.map(argMetadata => this._collectArg(req, argMetadata));
+    return handlerArgs.map(argMetadata =>
+      this._collectArg(req, res, argMetadata)
+    );
   }
 
-  private _collectArg(req: Request, argMetadata: ControllerMethodArgMetadata) {
+  private _collectArg(
+    req: Request,
+    res: Response,
+    argMetadata: ControllerMethodArgMetadata
+  ) {
     switch (argMetadata.type) {
       case "body":
         return req.body;
@@ -191,6 +197,12 @@ export class MethodHandler {
       }
       case "queryParam": {
         return this._collectQueryParam(req, argMetadata);
+      }
+      case "request": {
+        return req;
+      }
+      case "response": {
+        return res;
       }
       default:
         return undefined;
