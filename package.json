@@ -2,7 +2,7 @@
   "name": "simply-express-controllers",
   "version": "0.0.0-semantic-release",
   "description": "Utility library to produce express routers and swagger docs from controller classes.",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "types": "dts/index.d.ts",
   "files": [
     "/dist",
@@ -10,7 +10,7 @@
     "/readme.md"
   ],
   "scripts": {
-    "clean:lib": "rimraf lib dts",
+    "clean:lib": "rimraf dist dts",
     "clean:example": "cd example && npm run clean",
     "clean": "npm run clean:lib && npm run clean:example",
     "prebuild": "npm run clean",
