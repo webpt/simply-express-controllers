@@ -22,7 +22,8 @@ import { RootURL } from "../config";
 @controller("/widgets")
 export default class WidgetsController {
   @get("/", {
-    summary: "Gets all widgets"
+    summary: "Gets all widgets",
+    tags: ["widgets"]
   })
   @response(HttpStatusCodes.OK, {
     description: "An array of widgets",
@@ -49,7 +50,8 @@ export default class WidgetsController {
   }
 
   @get("/:widgetId", {
-    summary: "Gets a specific widget"
+    summary: "Gets a specific widget",
+    tags: ["widgets"]
   })
   @response(HttpStatusCodes.OK, {
     description: "The widget was found",
@@ -75,7 +77,8 @@ export default class WidgetsController {
   }
 
   @post("/", {
-    summary: "Creates a new widget"
+    summary: "Creates a new widget",
+    tags: ["widgets"]
   })
   @response(HttpStatusCodes.CREATED, {
     description: "The widget has been successfully created",
@@ -91,7 +94,7 @@ export default class WidgetsController {
     const widget = await WidgetRepository.create(body);
 
     return result(widget)
-      .status(200)
+      .status(HttpStatusCodes.CREATED)
       .header("Content-Location", `${RootURL}/widgets/${widget.id}`);
   }
 }
