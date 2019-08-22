@@ -15,9 +15,9 @@ import {
 import { Controller } from "../types";
 import {
   ControllerMethodResult,
-  StatusCode,
-  Headers,
-  Cookies
+  ResultStatusCode,
+  ResultHeaders,
+  ResultCookies
 } from "../method-result";
 import { maybeAwaitPromise } from "../promise-utils";
 
@@ -118,18 +118,18 @@ export class MethodHandler {
     }
 
     // Yank the status code and headers out of the symbol properties used by result().
-    const statusCode = result[StatusCode] || 200;
-    const headers = result[Headers] || {};
-    const cookies = result[Cookies] || {};
+    const statusCode = result[ResultStatusCode] || 200;
+    const headers = result[ResultHeaders] || {};
+    const cookies = result[ResultCookies] || {};
 
     // Clean away our special keys so they do not confuse things.
     //  This is mostly done for tests and validators.
     const httpResult = {
       ...result
     };
-    delete httpResult[StatusCode];
-    delete httpResult[Headers];
-    delete httpResult[Cookies];
+    delete httpResult[ResultStatusCode];
+    delete httpResult[ResultHeaders];
+    delete httpResult[ResultCookies];
 
     // Ensure the response matches the documented response.
     this._validateResponse(statusCode, httpResult);

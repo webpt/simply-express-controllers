@@ -331,20 +331,25 @@ In all cases, your controller methods should return the body to send as the resp
 
 When `result()` is used, the resulting value still matches your result, but with the addition of symbol properties representing the status code and header collection. The functions it enables are provided through setting an object prototype and should not interfere with testing.
 
-The status code and headers are attached using the `StatusCode` and `Headers` symbols, exported from the library. These can be used to test your results.
+The status code and headers are attached using the `ResultStatusCode`, `ResultHeaders`, and `ResultCookies` symbols, exported from the library. These can be used to test your results.
 
 ```js
-import { StatusCode, Headers } from "soapdish-controllers";
+import {
+  ResultStatusCode,
+  ResultHeaders,
+  ResultCookies
+} from "soapdish-controllers";
 
 const controller = new WidgetController(new MockRepo());
 
 const result = await controller.createWidget({ disposition: "happy" });
 
-expect(result.disposition).equals("happy");
-expect(result[StatusCode]).equals(201);
-expect(result[Headers]["Content-Location"]).equals(
+expect(result.disposition).toEqual("happy");
+expect(result[ResultStatusCode]).toEqual(201);
+expect(result[ResultHeaders]["Content-Location"]).toEqual(
   "www.myserver.com/widgets/1"
 );
+expect(result[ResultCookies]["my-cookie"].value).toBeDefined();
 ```
 
 ### Retrieving the express Request and Response

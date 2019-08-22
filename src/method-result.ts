@@ -73,22 +73,22 @@ export interface CookieSettings {
 /**
  * Symbol for specifying a status code for a controller method result.
  */
-export const StatusCode = Symbol("status-code");
+export const ResultStatusCode = Symbol("result::status-code");
 
 /**
  * Symbol for specifying headers for a controller method result.
  */
-export const Headers = Symbol("headers");
+export const ResultHeaders = Symbol("result::headers");
 
 /**
  * Symbol for specifying cookies for a controller method result.
  */
-export const Cookies = Symbol("cookies");
+export const ResultCookies = Symbol("result::cookies");
 
 export interface ControllerMethodResult {
-  [StatusCode]: number;
-  [Headers]: Record<string, string>;
-  [Cookies]: Record<string, ControllerMethodResultCookie>;
+  [ResultStatusCode]: number;
+  [ResultHeaders]: Record<string, string>;
+  [ResultCookies]: Record<string, ControllerMethodResultCookie>;
   [key: string]: any;
 }
 
@@ -117,15 +117,15 @@ function attachResultBuilder(body: any) {
 function resultBuilderStatus(this: object, status: number) {
   return attachResultBuilder({
     ...this,
-    [StatusCode]: status
+    [ResultStatusCode]: status
   });
 }
 
 function resultBuilderHeader(this: any, name: string, value: string) {
   return attachResultBuilder({
     ...this,
-    [Headers]: {
-      ...(this[Headers] || {}),
+    [ResultHeaders]: {
+      ...(this[ResultHeaders] || {}),
       [name]: value
     }
   });
@@ -139,8 +139,8 @@ function resultBuilderCookie(
 ) {
   return attachResultBuilder({
     ...this,
-    [Cookies]: {
-      ...(this[Cookies] || {}),
+    [ResultCookies]: {
+      ...(this[ResultCookies] || {}),
       [name]: { value, ...(settings || {}) }
     }
   });
