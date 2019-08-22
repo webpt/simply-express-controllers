@@ -43,7 +43,14 @@ function createSwaggerControllerPaths(
 function createSwaggerMethodConfig(
   methodMetadata: ControllerMethodMetadata
 ): object {
+  if (methodMetadata.swaggerOverride) {
+    return methodMetadata.swaggerOverride;
+  }
+
   return {
+    summary: methodMetadata.summary,
+    description: methodMetadata.description,
+    tags: methodMetadata.tags,
     parameters: [
       ...createSwaggerMethodPathParameters(methodMetadata),
       ...createSwaggerMethodQueryParameters(methodMetadata)

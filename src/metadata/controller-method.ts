@@ -8,6 +8,10 @@ export interface ControllerMethodMetadata {
   method: Method;
   path?: string;
 
+  summary?: string;
+  description?: string;
+  tags?: string[];
+
   queryParams?: Record<string, ParamMetadata>;
   pathParams?: Record<string, ParamMetadata>;
 
@@ -16,6 +20,8 @@ export interface ControllerMethodMetadata {
   responses?: Record<number, ResponseMetadata>;
 
   handlerArgs: ControllerMethodArgMetadata[];
+
+  swaggerOverride?: any;
 }
 
 export interface RequestMetadata {

@@ -63,6 +63,34 @@ class WidgetController {
 }
 ```
 
+### Providing swagger documentation on the method
+
+When defining a method, additional documentation can be provided for use by swagger. The following properties are supported by the method decorators:
+
+- `summary`
+  Provides a summary of the method to swagger
+- `description`
+  Provides a description of the method to swagger
+- `tags`
+  Provides method tags to swagger
+
+```js
+import { controller, get } from "simply-express-controllers";
+
+@controller("/widgets")
+class WidgetController {
+  constructor(private _repo: WidgetRepo) {}
+
+  @get("/", {
+    summary: "Gets an array of all widgets",
+    tags: ["widget"]
+  })
+  async getWidgets() {
+    return await this._repo.getWidgets();
+  }
+}
+```
+
 ### Documenting the response
 
 While not required, documenting responses provides two benefits:
@@ -388,6 +416,38 @@ class WidgetController {
     return result(widget)
       .status(201)
       .header("Content-Location", `www.myserver.com/widgets/${widget.id}`);
+  }
+}
+```
+
+### Overriding the swagger documentation
+
+Under most cases, the auto-generated swagger documentation should be sufficient. However, it is possible to suppress
+the auto-generated documentation and supply your own swagger docs by the use of the `@swaggerMethod` decorator.
+
+```js
+import { controller, get, swaggerMethod } from "simply-express-controllers";
+
+@controller("/widgets")
+class WidgetController {
+  constructor(private _repo: WidgetRepo) {}
+
+  @get()
+  @swaggerMethod({
+    summary: "Gets the widgets",
+    responses: {
+      "200": {
+        description: "An array of widgets",
+        content: {
+          "application/json": {
+            schema: widgetSchema
+          }
+        }
+      }
+    }
+  })
+  async getWidgets() {
+    return await this._repo.getWidgets();
   }
 }
 ```

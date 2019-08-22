@@ -6,7 +6,11 @@ import { Method } from "../types";
 /**
  * Settings for controller methods.
  */
-export interface ControllerMethodSettings {}
+export interface ControllerMethodSettings {
+  summary?: string;
+  description?: string;
+  tags?: string[];
+}
 
 /**
  * Annotates this method to be a GET request method.
@@ -86,10 +90,17 @@ export function method(
   path?: string,
   settings?: ControllerMethodSettings
 ): MethodDecorator {
+  if (!settings) {
+    settings = {};
+  }
+
   return (target: any, propertyKey: string | symbol) => {
     appendControllerMethodMetadata(target[propertyKey], {
       method,
-      path
+      path,
+      summary: settings!.summary,
+      description: settings!.description,
+      tags: settings!.tags
     });
   };
 }
@@ -114,6 +125,21 @@ export function response(
           schema: settings.schema
         }
       }
+    });
+  };
+}
+
+/**
+ * Specify the swagger documentation for the method.
+ *
+ * Using this decorator suppresses the auto-generation of swagger documentation for this method.
+ *
+ * @param swaggerPathDocs Additional swagger documentation to apply to the path.
+ */
+export function swaggerMethod(swaggerPathDocs: any): MethodDecorator {
+  return (target: any, propertyKey: string | symbol) => {
+    appendControllerMethodMetadata(target[propertyKey], {
+      swaggerOverride: swaggerPathDocs
     });
   };
 }
