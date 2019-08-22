@@ -37,17 +37,35 @@ Route handlers are created by decorating an async function on the controller wit
 
 Supported decorators are
 
-- `get(path?)` Creates a GET handler
-- `head(path?)` Creates a HEAD handler
-- `post(path?)` Creates a POST handler
-- `put(path?)` Creates a PUT handler
-- `del(path?)` Creates a DELETE handler
-- `patch(path?)` Creates a PATCH handler
-- `method(method, path?)` Creates a handler for the specified method
+- `@get(path?, settings?)` Creates a GET handler
+- `@head(path?, settings?)` Creates a HEAD handler
+- `@post(path?, settings?)` Creates a POST handler
+- `@put(path?, settings?)` Creates a PUT handler
+- `@del(path?, settings?)` Creates a DELETE handler
+- `@patch(path?, settings?)` Creates a PATCH handler
+
+There is also a fallback decorator `@method(method, path?, settings?)` to handle arbitrary methods.
+
+Supported arguments:
+
+- `path`
+  Optional.
+  Defaults to "/"
+  The path relative to the controller path for this method.
+- `settings`
+  Optional.
+  Various settings for this path.
+
+Supported decorator settings:
+
+- `summary`
+  A summary of the method. Used for swagger documentation.
+- `description`
+  A description of the method. Used for swagger documentation.
+- `tags`
+  An array of tags for this method. Used for swagger documentation.
 
 Warning: Only use one HTTP method decorator per method. The last decorator to be applied will override the others.
-
-If no path is specified, the default "/" is used.
 
 ```js
 import { controller, get } from "simply-express-controllers";
@@ -59,6 +77,11 @@ class WidgetController {
   @get()
   async getWidgets() {
     return await this._repo.getWidgets();
+  }
+
+  @get("/newest")
+  async getNewestWidget() {
+    return await this._repo.getNewestWidget();
   }
 }
 ```
@@ -81,12 +104,21 @@ import { controller, get } from "simply-express-controllers";
 class WidgetController {
   constructor(private _repo: WidgetRepo) {}
 
-  @get("/", {
+  @get({
     summary: "Gets an array of all widgets",
     tags: ["widget"]
   })
   async getWidgets() {
     return await this._repo.getWidgets();
+  }
+
+  @get("/newest", {
+    summary: "Gets the newest widget",
+    description: "The most recent widget to be created will be returned.",
+    tags: ["widget"]
+  })
+  async getNewestWidget() {
+    return await this._repo.getNewestWidget();
   }
 }
 ```

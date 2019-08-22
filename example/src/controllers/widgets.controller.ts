@@ -21,7 +21,7 @@ import { RootURL } from "../config";
 
 @controller("/widgets")
 export default class WidgetsController {
-  @get("/", {
+  @get({
     summary: "Gets all widgets",
     tags: ["widgets"]
   })
@@ -49,7 +49,7 @@ export default class WidgetsController {
     return widgets;
   }
 
-  @get("/:widgetId", {
+  @get("/:widget_id", {
     summary: "Gets a specific widget",
     tags: ["widgets"]
   })
@@ -61,7 +61,7 @@ export default class WidgetsController {
     description: "The requested widget ID was not found"
   })
   public async getWidget(
-    @pathParam("widgetId", {
+    @pathParam("widget_id", {
       schema: {
         type: "integer",
         description: "The ID of the widget to fetch."
@@ -76,7 +76,7 @@ export default class WidgetsController {
     return widget;
   }
 
-  @post("/", {
+  @post({
     summary: "Creates a new widget",
     tags: ["widgets"]
   })

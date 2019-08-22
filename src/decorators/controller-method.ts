@@ -14,70 +14,207 @@ export interface ControllerMethodSettings {
 
 /**
  * Annotates this method to be a GET request method.
+ */
+export function get(): MethodDecorator;
+/**
+ * Annotates this method to be a GET request method.
+ * @param path Path of this request handler relative to the controller.
+ */
+export function get(path: string): MethodDecorator;
+/**
+ * Annotates this method to be a GET request method.
+ * @param settings Settings for this request method.
+ */
+export function get(settings: ControllerMethodSettings): MethodDecorator;
+/**
+ * Annotates this method to be a GET request method.
+ * @param path Path of this request handler relative to the controller.
  * @param settings Settings for this request method.
  */
 export function get(
-  path?: string,
+  path: string,
+  settings: ControllerMethodSettings
+): MethodDecorator;
+export function get(
+  pathOrSettings?: string | ControllerMethodSettings,
   settings?: ControllerMethodSettings
 ): MethodDecorator {
-  return method("GET", path, settings);
+  return (method as any)("GET", pathOrSettings, settings);
 }
 
 /**
  * Annotates this method to be a HEAD request method.
+ */
+export function head(): MethodDecorator;
+/**
+ * Annotates this method to be a HEAD request method.
+ * @param path Path of this request handler relative to the controller.
+ */
+export function head(path: string): MethodDecorator;
+/**
+ * Annotates this method to be a HEAD request method.
+ * @param settings Settings for this request method.
+ */
+export function head(settings: ControllerMethodSettings): MethodDecorator;
+/**
+ * Annotates this method to be a HEAD request method.
+ * @param path Path of this request handler relative to the controller.
  * @param settings Settings for this request method.
  */
 export function head(
-  path?: string,
+  path: string,
+  settings: ControllerMethodSettings
+): MethodDecorator;
+export function head(
+  pathOrSettings?: string | ControllerMethodSettings,
   settings?: ControllerMethodSettings
 ): MethodDecorator {
-  return method("HEAD", path, settings);
+  return (method as any)("HEAD", pathOrSettings, settings);
 }
 
 /**
  * Annotates this method to be a POST request method.
+ */
+export function post(): MethodDecorator;
+/**
+ * Annotates this method to be a POST request method.
+ * @param path Path of this request handler relative to the controller.
+ */
+export function post(path: string): MethodDecorator;
+/**
+ * Annotates this method to be a POST request method.
+ * @param settings Settings for this request method.
+ */
+export function post(settings: ControllerMethodSettings): MethodDecorator;
+/**
+ * Annotates this method to be a POST request method.
+ * @param path Path of this request handler relative to the controller.
  * @param settings Settings for this request method.
  */
 export function post(
-  path?: string,
+  path: string,
+  settings: ControllerMethodSettings
+): MethodDecorator;
+export function post(
+  pathOrSettings?: string | ControllerMethodSettings,
   settings?: ControllerMethodSettings
 ): MethodDecorator {
-  return method("POST", path, settings);
+  return (method as any)("POST", pathOrSettings, settings);
 }
 
 /**
  * Annotates this method to be a PUT request method.
+ */
+export function put(): MethodDecorator;
+/**
+ * Annotates this method to be a PUT request method.
+ * @param path Path of this request handler relative to the controller.
+ */
+export function put(path: string): MethodDecorator;
+/**
+ * Annotates this method to be a PUT request method.
+ * @param settings Settings for this request method.
+ */
+export function put(settings: ControllerMethodSettings): MethodDecorator;
+/**
+ * Annotates this method to be a PUT request method.
+ * @param path Path of this request handler relative to the controller.
  * @param settings Settings for this request method.
  */
 export function put(
-  path?: string,
+  path: string,
+  settings: ControllerMethodSettings
+): MethodDecorator;
+export function put(
+  pathOrSettings?: string | ControllerMethodSettings,
   settings?: ControllerMethodSettings
 ): MethodDecorator {
-  return method("PUT", path, settings);
+  return (method as any)("PUT", pathOrSettings, settings);
 }
 
 /**
  * Annotates this method to be a DELETE request method.
+ */
+export function del(): MethodDecorator;
+/**
+ * Annotates this method to be a DELETE request method.
+ * @param path Path of this request handler relative to the controller.
+ */
+export function del(path: string): MethodDecorator;
+/**
+ * Annotates this method to be a DELETE request method.
+ * @param settings Settings for this request method.
+ */
+export function del(settings: ControllerMethodSettings): MethodDecorator;
+/**
+ * Annotates this method to be a DELETE request method.
+ * @param path Path of this request handler relative to the controller.
  * @param settings Settings for this request method.
  */
 export function del(
-  path?: string,
+  path: string,
+  settings: ControllerMethodSettings
+): MethodDecorator;
+export function del(
+  pathOrSettings?: string | ControllerMethodSettings,
   settings?: ControllerMethodSettings
 ): MethodDecorator {
-  return method("DELETE", path, settings);
+  return (method as any)("DELETE", pathOrSettings, settings);
 }
 
 /**
  * Annotates this method to be a PATCH request method.
+ */
+export function patch(): MethodDecorator;
+/**
+ * Annotates this method to be a PATCH request method.
+ * @param path Path of this request handler relative to the controller.
+ */
+export function patch(path: string): MethodDecorator;
+/**
+ * Annotates this method to be a PATCH request method.
+ * @param settings Settings for this request method.
+ */
+export function patch(settings: ControllerMethodSettings): MethodDecorator;
+/**
+ * Annotates this method to be a PATCH request method.
+ * @param path Path of this request handler relative to the controller.
  * @param settings Settings for this request method.
  */
 export function patch(
-  path?: string,
+  path: string,
+  settings: ControllerMethodSettings
+): MethodDecorator;
+export function patch(
+  pathOrSettings?: string | ControllerMethodSettings,
   settings?: ControllerMethodSettings
 ): MethodDecorator {
-  return method("PATCH", path, settings);
+  return (method as any)("PATCH", pathOrSettings, settings);
 }
 
+/**
+ * Annotates this method to be a controller method responding
+ * to a path.
+ * @param method The HTTP Method to respond to.
+ */
+export function method(method: Method): MethodDecorator;
+/**
+ * Annotates this method to be a controller method responding
+ * to a path.
+ * @param method The HTTP Method to respond to.
+ * @param path The path to respond at, relative to the controller path.
+ */
+export function method(method: Method, path: string): MethodDecorator;
+/**
+ * Annotates this method to be a controller method responding
+ * to a path.
+ * @param method The HTTP Method to respond to.
+ * @param settings Additional settings for this method.
+ */
+export function method(
+  method: Method,
+  settings: ControllerMethodSettings
+): MethodDecorator;
 /**
  * Annotates this method to be a controller method responding
  * to a path.
@@ -87,9 +224,21 @@ export function patch(
  */
 export function method(
   method: Method,
-  path?: string,
+  path: string,
+  settings: ControllerMethodSettings
+): MethodDecorator;
+export function method(
+  method: Method,
+  pathOrSettings?: string | ControllerMethodSettings,
   settings?: ControllerMethodSettings
 ): MethodDecorator {
+  let path = "/";
+  if (typeof pathOrSettings === "string") {
+    path = pathOrSettings;
+  } else if (pathOrSettings && typeof pathOrSettings === "object") {
+    settings = pathOrSettings;
+  }
+
   if (!settings) {
     settings = {};
   }

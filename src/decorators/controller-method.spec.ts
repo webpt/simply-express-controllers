@@ -6,7 +6,8 @@ import {
   del,
   patch,
   method,
-  response
+  response,
+  ControllerMethodSettings
 } from "./controller-method";
 import { getControllerMethodMetadata } from "../metadata";
 
@@ -144,25 +145,139 @@ describe("Controller Method Decorators", function() {
   });
 
   describe("@method", function() {
-    const httpMethod = "TRACE";
-    const path = "/foo/bar";
-    class TestClass {
-      @method(httpMethod, path)
-      testMethod() {}
-    }
+    describe("(method)", function() {
+      const httpMethod = "TRACE";
+      class TestClass {
+        @method(httpMethod)
+        testMethod() {}
+      }
 
-    it("sets the http method", function() {
-      const metadata = getControllerMethodMetadata(
-        TestClass.prototype["testMethod"]
-      )!;
-      expect(metadata.method).toEqual(httpMethod);
+      it("sets the http method", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.method).toEqual(httpMethod);
+      });
+
+      it("sets the path to '/'", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.path).toEqual("/");
+      });
     });
 
-    it("sets the path", function() {
-      const metadata = getControllerMethodMetadata(
-        TestClass.prototype["testMethod"]
-      )!;
-      expect(metadata.path).toEqual(path);
+    describe("(method, path)", function() {
+      const httpMethod = "TRACE";
+      const path = "/foo/bar";
+      class TestClass {
+        @method(httpMethod, path)
+        testMethod() {}
+      }
+
+      it("sets the http method", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.method).toEqual(httpMethod);
+      });
+
+      it("sets the path", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.path).toEqual(path);
+      });
+    });
+
+    describe("(method, settings)", function() {
+      const httpMethod = "TRACE";
+      const settings: ControllerMethodSettings = {
+        summary: "Test method",
+        description: "This is a test method",
+        tags: ["Test"]
+      };
+      class TestClass {
+        @method(httpMethod, settings)
+        testMethod() {}
+      }
+
+      it("sets the http method", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.method).toEqual(httpMethod);
+      });
+
+      it("sets the summary", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.summary).toEqual(settings.summary);
+      });
+
+      it("sets the description", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.description).toEqual(settings.description);
+      });
+
+      it("sets the tags", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.tags).toEqual(settings.tags);
+      });
+    });
+
+    describe("(method, path, settings)", function() {
+      const httpMethod = "TRACE";
+      const path = "/foo/bar";
+      const settings: ControllerMethodSettings = {
+        summary: "Test method",
+        description: "This is a test method",
+        tags: ["Test"]
+      };
+      class TestClass {
+        @method(httpMethod, path, settings)
+        testMethod() {}
+      }
+
+      it("sets the path", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.path).toEqual(path);
+      });
+
+      it("sets the http method", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.method).toEqual(httpMethod);
+      });
+
+      it("sets the summary", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.summary).toEqual(settings.summary);
+      });
+
+      it("sets the description", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.description).toEqual(settings.description);
+      });
+
+      it("sets the tags", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.tags).toEqual(settings.tags);
+      });
     });
   });
 
