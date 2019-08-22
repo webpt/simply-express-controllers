@@ -10,13 +10,9 @@
     "/readme.md"
   ],
   "scripts": {
-    "clean:lib": "rimraf dist dts",
-    "clean:example": "cd example && npm run clean",
-    "clean": "npm run clean:lib && npm run clean:example",
+    "clean": "rimraf dist dts",
     "prebuild": "npm run clean",
-    "build:lib": "tsc -p src",
-    "build:example": "cd example && npm run build",
-    "build": "npm run build:lib && npm run build:example",
+    "build": "tsc -p src",
     "test": "jest"
   },
   "keywords": [
