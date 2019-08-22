@@ -1,6 +1,6 @@
 {
   "name": "simply-express-controllers",
-  "version": "1.0.0",
+  "version": "0.0.0-semantic-release",
   "description": "Utility library to produce express routers and swagger docs from controller classes.",
   "main": "lib/index.js",
   "types": "dts/index.d.ts",
