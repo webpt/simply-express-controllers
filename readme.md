@@ -1,4 +1,4 @@
-# soapdish-controllers
+# simply-express-controllers
 
 No heavy frameworks, no IOC, just a simple robust express controller library using modern ES6 decorators.
 
@@ -21,7 +21,7 @@ This library is designed to be narrowly focused on solving the creation of expre
 To create an express route, create a class that will represent a controller for the route. Decorate this class with `@controller`
 
 ```js
-import { controller } from "soapdish-controllers";
+import { controller } from "simply-express-controllers";
 
 // Path is optional, and defaults to "/".
 @controller("/widgets")
@@ -50,7 +50,7 @@ Warning: Only use one HTTP method decorator per method. The last decorator to be
 If no path is specified, the default "/" is used.
 
 ```js
-import { controller, get } from "soapdish-controllers";
+import { controller, get } from "simply-express-controllers";
 
 @controller("/widgets")
 class WidgetController {
@@ -88,7 +88,7 @@ The presense of the `@response` decorator does not affect the status code we use
 and validates the response when the status code is used.
 
 ```js
-import { controller, get, response } from "soapdish-controllers";
+import { controller, get, response } from "simply-express-controllers";
 
 @controller("/widgets")
 class WidgetController {
@@ -132,7 +132,7 @@ Available settings:
   Additionally, valid data will be coerced to javascript types depending on the requested json-schema type. For example, `{type: "number"}` will cast the string to a number before passing it to your method.
 
 ```js
-import { controller, get, queryParam } from "soapdish-controllers";
+import { controller, get, queryParam } from "simply-express-controllers";
 
 @controller("/widgets")
 class WidgetController {
@@ -166,7 +166,7 @@ Available settings:
   Additionally, valid data will be cocerced to javascript types depending on the requested json-schema type. For example, `{type: "number"}` and `{type: "integer"}` will cast the string to a number.
 
 ```js
-import { controller, get, pathParam } from "soapdish-controllers";
+import { controller, get, pathParam } from "simply-express-controllers";
 
 @controller("/widgets")
 class WidgetController {
@@ -190,7 +190,7 @@ While not specifically a feature of this library, it is recommended that error c
 Remember to document your status codes using `@response` for the benefit of swagger.
 
 ```js
-import { controller, get, response, pathParam } from "soapdish-controllers";
+import { controller, get, response, pathParam } from "simply-express-controllers";
 import createError from "http-errors";
 
 @controller("/widgets")
@@ -238,7 +238,7 @@ Available settings:
   The schema will also be used in swagger documentation generation.
 
 ```js
-import { controller, post, body } from "soapdish-controllers";
+import { controller, post, body } from "simply-express-controllers";
 
 const widgetRequestSchema = {
   type: "object",
@@ -274,7 +274,7 @@ Custom status codes can be returned alongside a body by using the `result()` fun
 The return value of `status` and `header` is chainable, allowing both a status and multiple headers to be sent.
 
 ```js
-import { controller, post, body, result, response } from "soapdish-controllers";
+import { controller, post, body, result, response } from "simply-express-controllers";
 
 @controller("/widgets")
 class WidgetController {
@@ -303,7 +303,7 @@ The settings parameter is passed directly to express, and supports all the same 
 For possible values, see the [express documentation](https://expressjs.com/en/api.html#res.cookie).
 
 ```js
-import { controller, post, body, result } from "soapdish-controllers";
+import { controller, post, body, result } from "simply-express-controllers";
 
 @controller("/user")
 class UserController {
@@ -338,7 +338,7 @@ import {
   ResultStatusCode,
   ResultHeaders,
   ResultCookies
-} from "soapdish-controllers";
+} from "simply-express-controllers";
 
 const controller = new WidgetController(new MockRepo());
 
@@ -361,7 +361,7 @@ To get direct access to the request and response objects, use the `@expressReque
 Note that there is no way to suppress the sending of the response on method completion, so attempting to use Response.send() may result in an error.
 
 ```js
-import { controller, get, expressRequest, expressResponse } from "soapdish-controllers";
+import { controller, get, expressRequest, expressResponse } from "simply-express-controllers";
 import { Request, Response } from "express";
 import createError from "http-errors";
 
@@ -394,13 +394,13 @@ class WidgetController {
 
 ### Connecting your controller to express
 
-The end result of soapdish-controllers is to create express Routers. This is done through the `createControllerRoute(...controllers)` function. This function will take any number of controller instances, and create a single express Router to handle all of them.
+The end result of simply-express-controllers is to create express Routers. This is done through the `createControllerRoute(...controllers)` function. This function will take any number of controller instances, and create a single express Router to handle all of them.
 
 Note that the function expects instances of controllers, not the controller classes. You need to instantiate your class before passing it to the function.
 
 ```js
 import express from "express";
-import { createControllerRoute } from "soapdish-controllers";
+import { createControllerRoute } from "simply-express-controllers";
 
 import { WidgetController } from "./controllers/WidgetController";
 
@@ -431,7 +431,7 @@ Take note that this function does not return a fully formed swagger documentatio
 
 ```js
 import express from "express";
-import { createSwaggerPaths } from "soapdish-controllers";
+import { createSwaggerPaths } from "simply-express-controllers";
 import {
   serve as swaggerServe,
   setup as swaggerSetup

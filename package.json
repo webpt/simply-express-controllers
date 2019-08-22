@@ -1,5 +1,5 @@
 {
-  "name": "soapdish-controllers",
+  "name": "simply-express-controllers",
   "version": "1.0.0",
   "description": "Utility library to produce express routers and swagger docs from controller classes.",
   "main": "lib/index.js",
