@@ -9,7 +9,7 @@
     "stripInternal": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "../lib",
+    "outDir": "../dist",
     "declaration": true,
     "declarationDir": "../dts",
     "sourceMap": true

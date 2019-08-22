@@ -1,0 +1,43 @@
+---
+variables:
+  RELEASE_COMMIT_MESSAGE: "chore(release):"
+
+image: node:10.15.1
+
+stages:
+  - deps
+  - build
+
+dependency-fetch:
+  stage: deps
+  script:
+    - npm ci
+  artifacts:
+    paths:
+      - node_modules/
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^$RELEASE_COMMIT_MESSAGE.*/
+
+test:
+  # Test uses ts-jest, so it can run in parallel with build
+  stage: build
+  script: npm test
+  dependencies:
+    - dependency-fetch
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^$RELEASE_COMMIT_MESSAGE.*/
+
+build:
+  stage: build
+  script: npm run build
+  artifacts:
+    paths:
+      - dist/
+      - dts/
+  dependencies:
+    - dependency-fetch
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^$RELEASE_COMMIT_MESSAGE.*/
