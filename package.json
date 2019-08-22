@@ -11,7 +11,12 @@
     "test": "jest"
   },
   "keywords": [
-    "express"
+    "express",
+    "controller",
+    "router",
+    "typescript",
+    "swagger",
+    "decorator"
   ],
   "author": "william.matthews@webpt.com",
   "license": "UNLICENSED",
