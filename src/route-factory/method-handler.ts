@@ -124,15 +124,12 @@ export class MethodHandler {
 
     // Clean away our special keys so they do not confuse things.
     //  This is mostly done for tests and validators.
-    const httpResult = {
-      ...result
-    };
-    delete httpResult[ResultStatusCode];
-    delete httpResult[ResultHeaders];
-    delete httpResult[ResultCookies];
+    delete result[ResultStatusCode];
+    delete result[ResultHeaders];
+    delete result[ResultCookies];
 
     // Ensure the response matches the documented response.
-    this._validateResponse(statusCode, httpResult);
+    this._validateResponse(statusCode, result);
 
     // Set any headers that were requested.
     for (const key of Object.keys(headers)) {
@@ -150,7 +147,7 @@ export class MethodHandler {
     res.status(statusCode);
 
     // Send the result.
-    res.send(httpResult);
+    res.send(result);
   }
 
   private _validateRequest(req: Request) {
