@@ -50,7 +50,7 @@ Supported arguments:
 
 - `path`
   Optional.
-  Defaults to "/"
+  Defaults to "/".
   The path relative to the controller path for this method.
 - `settings`
   Optional.
@@ -322,7 +322,7 @@ class WidgetController {
 }
 ```
 
-### Returning custom status codes and headers with the body
+### Returning custom status codes and headers with the result
 
 Custom status codes can be returned alongside a body by using the `result()` function. Wrapping your result with `result()` will return a chaining object that provides two functions:
 
