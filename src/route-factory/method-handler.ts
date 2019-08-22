@@ -13,12 +13,7 @@ import {
   ControllerMethodArgMetadata
 } from "../metadata";
 import { Controller } from "../types";
-import {
-  ControllerMethodResult,
-  ResultStatusCode,
-  ResultHeaders,
-  ResultCookies
-} from "../method-result";
+import { ResultBuilderCookie, ResultBuilder } from "../method-result";
 import { maybeAwaitPromise } from "../promise-utils";
 
 const ajv = new Ajv({ coerceTypes: true, useDefaults: true });
@@ -110,23 +105,23 @@ export class MethodHandler {
     const methodResult = this._method.apply(this._controller, args);
 
     // The method may or may not have returned a promise.  Await it if so.
-    let result = await maybeAwaitPromise<ControllerMethodResult>(methodResult);
+    let result = await maybeAwaitPromise(methodResult);
 
     if (!result) {
       // Throw an error to the user.  Express will return this into a 500.
       throw new Error("Controller methods must return a result.");
     }
 
-    // Yank the status code and headers out of the symbol properties used by result().
-    const statusCode = result[ResultStatusCode] || 200;
-    const headers = result[ResultHeaders] || {};
-    const cookies = result[ResultCookies] || {};
+    let statusCode = 200;
+    let headers: Record<string, string> = {};
+    let cookies: Record<string, ResultBuilderCookie> = {};
 
-    // Clean away our special keys so they do not confuse things.
-    //  This is mostly done for tests and validators.
-    delete result[ResultStatusCode];
-    delete result[ResultHeaders];
-    delete result[ResultCookies];
+    if (result instanceof ResultBuilder) {
+      statusCode = result.statusCode;
+      headers = result.headers;
+      cookies = result.cookies;
+      result = result.body;
+    }
 
     // Ensure the response matches the documented response.
     this._validateResponse(statusCode, result);

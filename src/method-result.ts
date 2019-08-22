@@ -1,17 +1,32 @@
-export interface ResultBuilder {
+export class ResultBuilder {
+  body: any;
+
+  statusCode: number = 200;
+  headers: Record<string, string> = {};
+  cookies: Record<string, ResultBuilderCookie> = {};
+
+  constructor(body: any) {
+    this.body = body;
+  }
+
   /**
    * Sets the status message of the result.
    * @param status The status code to return.
-   * @param statusMessage The status message to return.
    */
-  status(status: number, statusMessage?: string): ResultBuilder;
+  status(status: number): ResultBuilder {
+    this.statusCode = status;
+    return this;
+  }
 
   /**
    * Sets a result header.
    * @param name The name of the header to set.
    * @param value The value of the header to set.
    */
-  header(name: string, value: string): ResultBuilder;
+  header(name: string, value: string): ResultBuilder {
+    this.headers[name] = value;
+    return this;
+  }
 
   /**
    * Sets a cookie on the result.
@@ -19,7 +34,14 @@ export interface ResultBuilder {
    * @param value The value of the cookie.
    * @param settings Additional cookie settings.
    */
-  cookie(name: string, value: string, settings?: CookieSettings): ResultBuilder;
+  cookie(
+    name: string,
+    value: string,
+    settings?: CookieSettings
+  ): ResultBuilder {
+    this.cookies[name] = { value, ...(settings || {}) };
+    return this;
+  }
 }
 
 /**
@@ -70,29 +92,7 @@ export interface CookieSettings {
   sameSite?: boolean | string;
 }
 
-/**
- * Symbol for specifying a status code for a controller method result.
- */
-export const ResultStatusCode = Symbol("result::status-code");
-
-/**
- * Symbol for specifying headers for a controller method result.
- */
-export const ResultHeaders = Symbol("result::headers");
-
-/**
- * Symbol for specifying cookies for a controller method result.
- */
-export const ResultCookies = Symbol("result::cookies");
-
-export interface ControllerMethodResult {
-  [ResultStatusCode]: number;
-  [ResultHeaders]: Record<string, string>;
-  [ResultCookies]: Record<string, ControllerMethodResultCookie>;
-  [key: string]: any;
-}
-
-export interface ControllerMethodResultCookie extends CookieSettings {
+export interface ResultBuilderCookie extends CookieSettings {
   value: string;
 }
 
@@ -101,47 +101,5 @@ export interface ControllerMethodResultCookie extends CookieSettings {
  * @param body The body data to return as the result.
  */
 export function result(body: any): ResultBuilder {
-  return attachResultBuilder(body) as any;
-}
-
-function attachResultBuilder(body: any) {
-  const newBody = Object.create({
-    status: resultBuilderStatus,
-    header: resultBuilderHeader,
-    cookie: resultBuilderCookie
-  });
-  Object.assign(newBody, body);
-  return newBody;
-}
-
-function resultBuilderStatus(this: object, status: number) {
-  return attachResultBuilder({
-    ...this,
-    [ResultStatusCode]: status
-  });
-}
-
-function resultBuilderHeader(this: any, name: string, value: string) {
-  return attachResultBuilder({
-    ...this,
-    [ResultHeaders]: {
-      ...(this[ResultHeaders] || {}),
-      [name]: value
-    }
-  });
-}
-
-function resultBuilderCookie(
-  this: any,
-  name: string,
-  value: string,
-  settings?: CookieSettings
-) {
-  return attachResultBuilder({
-    ...this,
-    [ResultCookies]: {
-      ...(this[ResultCookies] || {}),
-      [name]: { value, ...(settings || {}) }
-    }
-  });
+  return new ResultBuilder(body);
 }

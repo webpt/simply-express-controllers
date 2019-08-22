@@ -621,6 +621,54 @@ describe("Method Handler", function() {
       expect(res.send).toBeCalledWith(response);
     });
 
+    it("supports string responses through result()", async function() {
+      const response = "This is the response";
+      const method = jest.fn().mockReturnValue(result(response));
+      const metadata = createMethodMetadata();
+      const handler = new MethodHandler(method, metadata, dummyController);
+
+      const req = createRequest();
+      const res = createResponse();
+      const next = jest.fn();
+
+      await handler.handleRequest(req, res, next);
+
+      expect(next).not.toBeCalled();
+      expect(res.send).toBeCalledWith(response);
+    });
+
+    it("supports array responses through result()", async function() {
+      const response = [1, 2, 3];
+      const method = jest.fn().mockReturnValue(result(response));
+      const metadata = createMethodMetadata();
+      const handler = new MethodHandler(method, metadata, dummyController);
+
+      const req = createRequest();
+      const res = createResponse();
+      const next = jest.fn();
+
+      await handler.handleRequest(req, res, next);
+
+      expect(next).not.toBeCalled();
+      expect(res.send).toBeCalledWith(response);
+    });
+
+    it("supports object responses through result()", async function() {
+      const response = { foo: true };
+      const method = jest.fn().mockReturnValue(result(response));
+      const metadata = createMethodMetadata();
+      const handler = new MethodHandler(method, metadata, dummyController);
+
+      const req = createRequest();
+      const res = createResponse();
+      const next = jest.fn();
+
+      await handler.handleRequest(req, res, next);
+
+      expect(next).not.toBeCalled();
+      expect(res.send).toBeCalledWith(response);
+    });
+
     it("sets headers according to the response", async function() {
       const headerName1 = "Header1";
       const headerValue1 = "Foo";

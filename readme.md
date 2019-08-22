@@ -353,31 +353,30 @@ class UserController {
 }
 ```
 
-### Testing method results
+### Testing methods with `result()`
 
-In all cases, your controller methods should return the body to send as the response. This is still the case when the `result()` function is used to apply a status code and headers.
+In order to attach properties to your response body, `result()` wraps the result in a class instance. To test the result, you must access the properties of this class:
 
-When `result()` is used, the resulting value still matches your result, but with the addition of symbol properties representing the status code and header collection. The functions it enables are provided through setting an object prototype and should not interfere with testing.
-
-The status code and headers are attached using the `ResultStatusCode`, `ResultHeaders`, and `ResultCookies` symbols, exported from the library. These can be used to test your results.
+- `body`
+  The body passed to `result()`.
+- `statusCode`
+  The status code specified by `.status()`.
+- `headers`
+  An object mapping header names to header values, specified by `.header()`.
+- `cookies`
+  An object mapping cookie names to cookie data, specified by `.cookie()`.
 
 ```js
-import {
-  ResultStatusCode,
-  ResultHeaders,
-  ResultCookies
-} from "simply-express-controllers";
-
 const controller = new WidgetController(new MockRepo());
 
 const result = await controller.createWidget({ disposition: "happy" });
 
-expect(result.disposition).toEqual("happy");
-expect(result[ResultStatusCode]).toEqual(201);
-expect(result[ResultHeaders]["Content-Location"]).toEqual(
+expect(result.body.disposition).toEqual("happy");
+expect(result.statusCode).toEqual(201);
+expect(result.headers["Content-Location"]).toEqual(
   "www.myserver.com/widgets/1"
 );
-expect(result[ResultCookies]["my-cookie"].value).toBeDefined();
+expect(result.cookies["my-cookie"].value).toBeDefined();
 ```
 
 ### Retrieving the express Request and Response
