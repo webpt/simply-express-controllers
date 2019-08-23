@@ -19,7 +19,7 @@ export function getValidatorError(
     return defaultMessage;
   }
 
-  let prop = error.propertyName || defaultProp;
+  let prop = error.propertyName || error.dataPath || defaultProp;
   if (prop && prop != "") {
     prop += " ";
   }
