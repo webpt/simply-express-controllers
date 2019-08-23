@@ -3,11 +3,11 @@ import { Controller } from "../types";
 import { getControllerMethods } from "../controller-utils";
 
 export function createSwaggerPaths(
-  ...controllers: Controller[]
+  ...controllers: object[]
 ): Record<string, object> {
   const result: Record<string, object> = {};
   for (const controller of controllers) {
-    const controllerPaths = createSwaggerControllerPaths(controller);
+    const controllerPaths = createSwaggerControllerPaths(controller as any);
     Object.assign(result, controllerPaths);
   }
   return result;
@@ -19,9 +19,7 @@ function createSwaggerControllerPaths(
   const controllerMetadata = getControllerMetadata(controller.constructor);
   if (!controllerMetadata) {
     throw new Error(
-      `Controller "${
-        controller.constructor.name
-      }" does not have a @controller annotation.`
+      `Controller "${controller.constructor.name}" does not have a @controller annotation.`
     );
   }
 

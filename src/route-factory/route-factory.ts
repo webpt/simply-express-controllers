@@ -13,12 +13,12 @@ import { getControllerMethods } from "../controller-utils";
 
 import { MethodHandler } from "./method-handler";
 
-export function createControllerRoute(...controllers: Controller[]): Router {
+export function createControllerRoute(...controllers: object[]): Router {
   const router = Router();
   router.use(bodyParser.json());
 
   for (const controller of controllers) {
-    linkControllerToRoute(controller, router);
+    linkControllerToRoute(controller as any, router);
   }
   return router;
 }
