@@ -33,6 +33,24 @@ describe("Method Handler", function() {
     expect(next).toBeCalledWith(err);
   });
 
+  it("forwards thrown async errors to express", async function() {
+    const err = new Error("This is a test error");
+    const method = async () => {
+      await Promise.resolve(1);
+      throw err;
+    };
+    const metadata = createMethodMetadata();
+    const handler = new MethodHandler(method, metadata, dummyController);
+
+    const req = createRequest();
+    const res = createResponse();
+    const next = jest.fn();
+
+    await handler.handleRequest(req, res, next);
+
+    expect(next).toBeCalledWith(err);
+  });
+
   describe("Request Validation", function() {
     it("permits any body when no validation is specified", async function() {
       const method = jest.fn().mockReturnValue({});
