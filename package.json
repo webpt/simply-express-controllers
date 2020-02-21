@@ -13,7 +13,8 @@
     "clean": "rimraf dist dts",
     "prebuild": "npm run clean",
     "build": "tsc -p src",
-    "test": "jest"
+    "test": "jest",
+    "format": "prettier --write \"./src/**/*.{ts,js}\""
   },
   "keywords": [
     "express",
@@ -48,6 +49,7 @@
     "@types/lodash": "^4.14.136",
     "express": "^4.17.1",
     "jest": "^24.9.0",
+    "prettier": "^1.19.1",
     "rimraf": "^2.6.3",
     "ts-jest": "^24.0.2",
     "typescript": "^3.5.3"

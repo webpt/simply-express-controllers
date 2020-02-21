@@ -27,9 +27,7 @@ function linkControllerToRoute(controller: Controller, route: Router) {
   const controllerMetadata = getControllerMetadata(controller.constructor);
   if (!controllerMetadata) {
     throw new Error(
-      `Controller "${
-        controller.constructor.name
-      }" does not have a @controller annotation.`
+      `Controller "${controller.constructor.name}" does not have a @controller annotation.`
     );
   }
 
@@ -84,9 +82,7 @@ function linkControllerMethodToRoute(
       break;
     default:
       throw new Error(
-        `Unknown method ${methodMetadata.method} for controller function ${
-          method.name
-        }.`
+        `Unknown method ${methodMetadata.method} for controller function ${method.name}.`
       );
   }
 }
