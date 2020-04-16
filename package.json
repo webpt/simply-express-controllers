@@ -24,13 +24,11 @@
     "swagger",
     "decorator"
   ],
-  "contributors": [
-    {
-      "name": "William Matthews",
-      "email": "william.matthews@webpt.com"
-    }
-  ],
-  "license": "UNLICENSED",
+  "author": {
+    "name": "William Matthews",
+    "email": "robophred@gmail.com"
+  },
+  "license": "Apache-2.0",
   "dependencies": {
     "ajv": "^6.10.2",
     "body-parser": "^1.19.0",
@@ -39,9 +37,6 @@
     "lodash": "^4.17.15"
   },
   "devDependencies": {
-    "@semantic-release/git": "^7.0.16",
-    "@semantic-release/gitlab": "^3.1.7",
-    "@semantic-release/npm": "^5.1.13",
     "@types/express": "^4.17.0",
     "@types/http-errors": "^1.6.1",
     "@types/jest": "^24.0.17",
@@ -56,38 +51,5 @@
   },
   "peerDependencies": {
     "express": "^4.17.1"
-  },
-  "publishConfig": {
-    "registry": "https://nexus.wptdev.com/nexus/content/repositories/npm-internal/"
-  },
-  "release": {
-    "verifyConditions": [
-      {
-        "path": "@semantic-release/gitlab",
-        "gitlabUrl": "https://gitlab.webpt.com"
-      }
-    ],
-    "publish": [
-      {
-        "path": "@semantic-release/gitlab",
-        "gitlabUrl": "https://gitlab.webpt.com"
-      }
-    ],
-    "prepare": [
-      {
-        "path": "@semantic-release/npm",
-        "npmPublish": false
-      },
-      {
-        "path": "@semantic-release/git",
-        "assets": [
-          "package.json",
-          "package-lock.json"
-        ],
-        "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
-      }
-    ],
-    "success": false,
-    "fail": false
   }
 }
