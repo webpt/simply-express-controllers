@@ -10,7 +10,7 @@ import {
   ParamMetadata,
   PathParamControllerMethodArgMetadata,
   QueryParamControllerMethodArgMetadata,
-  ControllerMethodArgMetadata
+  ControllerMethodArgMetadata,
 } from "../metadata";
 import { Controller } from "../types";
 import { ResultBuilderCookie, ResultBuilder } from "../method-result";
@@ -57,7 +57,7 @@ export class MethodHandler {
     //  These are mapped based on status codes.
     this._responseValidators = mapValues(
       _methodMetadata.responses,
-      response => {
+      (response) => {
         if (response.schema) {
           return ajv.compile(response.schema);
         } else {
@@ -185,7 +185,11 @@ export class MethodHandler {
 
   private _collectMethodArgs(req: Request, res: Response): any[] {
     const { handlerArgs } = this._methodMetadata;
-    return handlerArgs.map(argMetadata =>
+    if (!handlerArgs) {
+      return [];
+    }
+
+    return handlerArgs.map((argMetadata) =>
       this._collectArg(req, res, argMetadata)
     );
   }
@@ -253,10 +257,10 @@ function createQueryParamValidator(
       value: {
         ...metadata.schema,
         // Remove our required: true/false value, as it is not standard json-schema.
-        required: undefined
-      }
+        required: undefined,
+      },
     },
-    required: metadata.required ? ["value"] : []
+    required: metadata.required ? ["value"] : [],
   });
 
   return (value: any) => {
@@ -283,9 +287,9 @@ function createPathParamValidator(metadata: ParamMetadata): ValidateFunction {
   const validate = ajv.compile({
     type: "object",
     properties: {
-      value: metadata.schema || {}
+      value: metadata.schema || {},
     },
-    required: metadata.required ? ["value"] : []
+    required: metadata.required ? ["value"] : [],
   });
 
   return (value: any) => {

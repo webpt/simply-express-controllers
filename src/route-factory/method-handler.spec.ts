@@ -7,7 +7,7 @@ import {
   PathParamControllerMethodArgMetadata,
   QueryParamControllerMethodArgMetadata,
   RequestControllerMethodArgMetadata,
-  ResponseControllerMethodArgMetadata
+  ResponseControllerMethodArgMetadata,
 } from "../metadata";
 import { MethodHandler } from "./method-handler";
 import { result, CookieSettings } from "../method-result";
@@ -58,7 +58,7 @@ describe("Method Handler", function() {
       const handler = new MethodHandler(method, metadata, dummyController);
 
       const req = createRequest({
-        body: 42
+        body: 42,
       });
       const res = createResponse();
       const next = jest.fn();
@@ -72,13 +72,13 @@ describe("Method Handler", function() {
       const method = jest.fn().mockReturnValue({});
       const metadata = createMethodMetadata({
         request: {
-          required: true
-        }
+          required: true,
+        },
       });
       const handler = new MethodHandler(method, metadata, dummyController);
 
       const req = createRequest({
-        body: undefined
+        body: undefined,
       });
       const res = createResponse();
       const next = jest.fn();
@@ -87,7 +87,7 @@ describe("Method Handler", function() {
 
       expect(next).toBeCalledWith(
         expect.objectContaining({
-          statusCode: HttpStatusCodes.BAD_REQUEST
+          statusCode: HttpStatusCodes.BAD_REQUEST,
         })
       );
     });
@@ -99,17 +99,17 @@ describe("Method Handler", function() {
           schema: {
             type: "object",
             properties: {
-              foo: { type: "number" }
-            }
-          }
-        }
+              foo: { type: "number" },
+            },
+          },
+        },
       });
       const handler = new MethodHandler(method, metadata, dummyController);
 
       const req = createRequest({
         body: {
-          foo: "This is not a number"
-        }
+          foo: "This is not a number",
+        },
       });
       const res = createResponse();
       const next = jest.fn();
@@ -118,28 +118,43 @@ describe("Method Handler", function() {
 
       expect(next).toBeCalledWith(
         expect.objectContaining({
-          statusCode: HttpStatusCodes.BAD_REQUEST
+          statusCode: HttpStatusCodes.BAD_REQUEST,
         })
       );
     });
   });
 
   describe("Arguments", function() {
+    it("handles zero argument methods", async function() {
+      const method = jest.fn().mockReturnValue({});
+      const metadata = createMethodMetadata({});
+      const handler = new MethodHandler(method, metadata, dummyController);
+
+      const req = createRequest({});
+      const res = createResponse();
+      const next = jest.fn();
+
+      await handler.handleRequest(req, res, next);
+
+      expect(next).not.toBeCalled();
+      expect(method).toBeCalled();
+    });
+
     describe("body", function() {
       it("provides the request body", async function() {
         const body = { foo: 42 };
 
         const method = jest.fn().mockReturnValue({});
         const firstArg: BodyControllerMethodArgMetadata = {
-          type: "body"
+          type: "body",
         };
         const metadata = createMethodMetadata({
-          handlerArgs: [firstArg]
+          handlerArgs: [firstArg],
         });
         const handler = new MethodHandler(method, metadata, dummyController);
 
         const req = createRequest({
-          body
+          body,
         });
         const res = createResponse();
         const next = jest.fn();
@@ -158,20 +173,20 @@ describe("Method Handler", function() {
         const paramValue = "This is the test param value";
         const firstArg: PathParamControllerMethodArgMetadata = {
           type: "pathParam",
-          paramName
+          paramName,
         };
         const metadata = createMethodMetadata({
           pathParams: {
-            [paramName]: {}
+            [paramName]: {},
           },
-          handlerArgs: [firstArg]
+          handlerArgs: [firstArg],
         });
         const handler = new MethodHandler(method, metadata, dummyController);
 
         const req = createRequest({
           params: {
-            [paramName]: paramValue
-          }
+            [paramName]: paramValue,
+          },
         });
         const res = createResponse();
         const next = jest.fn();
@@ -187,20 +202,20 @@ describe("Method Handler", function() {
         const paramName = "testParam";
         const firstArg: PathParamControllerMethodArgMetadata = {
           type: "pathParam",
-          paramName
+          paramName,
         };
         const metadata = createMethodMetadata({
           pathParams: {
             [paramName]: {
-              required: true
-            }
+              required: true,
+            },
           },
-          handlerArgs: [firstArg]
+          handlerArgs: [firstArg],
         });
         const handler = new MethodHandler(method, metadata, dummyController);
 
         const req = createRequest({
-          params: {}
+          params: {},
         });
         const res = createResponse();
         const next = jest.fn();
@@ -209,7 +224,7 @@ describe("Method Handler", function() {
 
         expect(next).toBeCalledWith(
           expect.objectContaining({
-            statusCode: HttpStatusCodes.NOT_FOUND
+            statusCode: HttpStatusCodes.NOT_FOUND,
           })
         );
       });
@@ -220,22 +235,22 @@ describe("Method Handler", function() {
         const paramValue = "This is the test param value";
         const firstArg: PathParamControllerMethodArgMetadata = {
           type: "pathParam",
-          paramName
+          paramName,
         };
         const metadata = createMethodMetadata({
           pathParams: {
             [paramName]: {
-              schema: { type: "integer" }
-            }
+              schema: { type: "integer" },
+            },
           },
-          handlerArgs: [firstArg]
+          handlerArgs: [firstArg],
         });
         const handler = new MethodHandler(method, metadata, dummyController);
 
         const req = createRequest({
           params: {
-            [paramName]: paramValue
-          }
+            [paramName]: paramValue,
+          },
         });
         const res = createResponse();
         const next = jest.fn();
@@ -244,7 +259,7 @@ describe("Method Handler", function() {
 
         expect(next).toBeCalledWith(
           expect.objectContaining({
-            statusCode: HttpStatusCodes.NOT_FOUND
+            statusCode: HttpStatusCodes.NOT_FOUND,
           })
         );
       });
@@ -256,22 +271,22 @@ describe("Method Handler", function() {
         const expectedParamValue = 42;
         const firstArg: PathParamControllerMethodArgMetadata = {
           type: "pathParam",
-          paramName
+          paramName,
         };
         const metadata = createMethodMetadata({
           pathParams: {
             [paramName]: {
-              schema: { type: "integer" }
-            }
+              schema: { type: "integer" },
+            },
           },
-          handlerArgs: [firstArg]
+          handlerArgs: [firstArg],
         });
         const handler = new MethodHandler(method, metadata, dummyController);
 
         const req = createRequest({
           params: {
-            [paramName]: paramValue
-          }
+            [paramName]: paramValue,
+          },
         });
         const res = createResponse();
         const next = jest.fn();
@@ -290,20 +305,20 @@ describe("Method Handler", function() {
         const paramValue = "This is the test param value";
         const firstArg: QueryParamControllerMethodArgMetadata = {
           type: "queryParam",
-          paramName
+          paramName,
         };
         const metadata = createMethodMetadata({
           queryParams: {
-            [paramName]: {}
+            [paramName]: {},
           },
-          handlerArgs: [firstArg]
+          handlerArgs: [firstArg],
         });
         const handler = new MethodHandler(method, metadata, dummyController);
 
         const req = createRequest({
           query: {
-            [paramName]: paramValue
-          }
+            [paramName]: paramValue,
+          },
         });
         const res = createResponse();
         const next = jest.fn();
@@ -319,20 +334,20 @@ describe("Method Handler", function() {
         const paramName = "testParam";
         const firstArg: QueryParamControllerMethodArgMetadata = {
           type: "queryParam",
-          paramName
+          paramName,
         };
         const metadata = createMethodMetadata({
           queryParams: {
             [paramName]: {
-              required: true
-            }
+              required: true,
+            },
           },
-          handlerArgs: [firstArg]
+          handlerArgs: [firstArg],
         });
         const handler = new MethodHandler(method, metadata, dummyController);
 
         const req = createRequest({
-          query: {}
+          query: {},
         });
         const res = createResponse();
         const next = jest.fn();
@@ -341,7 +356,7 @@ describe("Method Handler", function() {
 
         expect(next).toBeCalledWith(
           expect.objectContaining({
-            statusCode: HttpStatusCodes.BAD_REQUEST
+            statusCode: HttpStatusCodes.BAD_REQUEST,
           })
         );
       });
@@ -352,22 +367,22 @@ describe("Method Handler", function() {
         const paramValue = "This is the test param value";
         const firstArg: QueryParamControllerMethodArgMetadata = {
           type: "queryParam",
-          paramName
+          paramName,
         };
         const metadata = createMethodMetadata({
           queryParams: {
             [paramName]: {
-              schema: { type: "integer" }
-            }
+              schema: { type: "integer" },
+            },
           },
-          handlerArgs: [firstArg]
+          handlerArgs: [firstArg],
         });
         const handler = new MethodHandler(method, metadata, dummyController);
 
         const req = createRequest({
           query: {
-            [paramName]: paramValue
-          }
+            [paramName]: paramValue,
+          },
         });
         const res = createResponse();
         const next = jest.fn();
@@ -376,7 +391,7 @@ describe("Method Handler", function() {
 
         expect(next).toBeCalledWith(
           expect.objectContaining({
-            statusCode: HttpStatusCodes.UNPROCESSABLE_ENTITY
+            statusCode: HttpStatusCodes.UNPROCESSABLE_ENTITY,
           })
         );
       });
@@ -388,22 +403,22 @@ describe("Method Handler", function() {
         const expectedParamValue = 42;
         const firstArg: QueryParamControllerMethodArgMetadata = {
           type: "queryParam",
-          paramName
+          paramName,
         };
         const metadata = createMethodMetadata({
           queryParams: {
             [paramName]: {
-              schema: { type: "integer" }
-            }
+              schema: { type: "integer" },
+            },
           },
-          handlerArgs: [firstArg]
+          handlerArgs: [firstArg],
         });
         const handler = new MethodHandler(method, metadata, dummyController);
 
         const req = createRequest({
           query: {
-            [paramName]: paramValue
-          }
+            [paramName]: paramValue,
+          },
         });
         const res = createResponse();
         const next = jest.fn();
@@ -419,10 +434,10 @@ describe("Method Handler", function() {
       it("provides the request", async function() {
         const method = jest.fn().mockReturnValue({});
         const firstArg: RequestControllerMethodArgMetadata = {
-          type: "request"
+          type: "request",
         };
         const metadata = createMethodMetadata({
-          handlerArgs: [firstArg]
+          handlerArgs: [firstArg],
         });
         const handler = new MethodHandler(method, metadata, dummyController);
 
@@ -441,10 +456,10 @@ describe("Method Handler", function() {
       it("provides the response", async function() {
         const method = jest.fn().mockReturnValue({});
         const firstArg: ResponseControllerMethodArgMetadata = {
-          type: "response"
+          type: "response",
         };
         const metadata = createMethodMetadata({
-          handlerArgs: [firstArg]
+          handlerArgs: [firstArg],
         });
         const handler = new MethodHandler(method, metadata, dummyController);
 
@@ -522,9 +537,9 @@ describe("Method Handler", function() {
       const metadata = createMethodMetadata({
         responses: {
           [statusCode + 1]: {
-            schema: { type: "null" }
-          }
-        }
+            schema: { type: "null" },
+          },
+        },
       });
       const handler = new MethodHandler(method, metadata, dummyController);
 
@@ -546,9 +561,12 @@ describe("Method Handler", function() {
       const metadata = createMethodMetadata({
         responses: {
           [statusCode]: {
-            schema: { type: "object", properties: { foo: { type: "integer" } } }
-          }
-        }
+            schema: {
+              type: "object",
+              properties: { foo: { type: "integer" } },
+            },
+          },
+        },
       });
       const handler = new MethodHandler(method, metadata, dummyController);
 
@@ -572,9 +590,12 @@ describe("Method Handler", function() {
       const metadata = createMethodMetadata({
         responses: {
           [statusCode]: {
-            schema: { type: "object", properties: { foo: { type: "integer" } } }
-          }
-        }
+            schema: {
+              type: "object",
+              properties: { foo: { type: "integer" } },
+            },
+          },
+        },
       });
       const handler = new MethodHandler(method, metadata, dummyController);
 
@@ -737,7 +758,7 @@ describe("Method Handler", function() {
       const cookieSettings2: CookieSettings = {
         domain: "www.foobar.com",
         path: "/foo",
-        expires: false
+        expires: false,
       };
       const methodResult = result({ foo: 42 })
         .cookie(cookieName1, cookieValue1)
@@ -811,7 +832,7 @@ function createRequest(opts?: RequestOpts): Request {
   return {
     body: opts.body,
     params: opts.params || {},
-    query: opts.query || {}
+    query: opts.query || {},
   } as any;
 }
 
@@ -829,7 +850,6 @@ function createMethodMetadata(
 ): ControllerMethodMetadata {
   return {
     method: "GET",
-    handlerArgs: [],
-    ...metadata
+    ...metadata,
   };
 }

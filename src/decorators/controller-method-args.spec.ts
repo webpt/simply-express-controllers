@@ -3,12 +3,12 @@ import {
   pathParam,
   queryParam,
   expressRequest,
-  expressResponse
+  expressResponse,
 } from "./controller-method-args";
 import {
   getControllerMethodMetadata,
   PathParamControllerMethodArgMetadata,
-  QueryParamControllerMethodArgMetadata
+  QueryParamControllerMethodArgMetadata,
 } from "../metadata";
 
 describe("Controller Method Argument Decorators", function() {
@@ -27,7 +27,7 @@ describe("Controller Method Argument Decorators", function() {
       const metadata = getControllerMethodMetadata(
         TestClass.prototype["testMethod"]
       )!;
-      expect(metadata.handlerArgs[1].type).toEqual("body");
+      expect(metadata.handlerArgs![1].type).toEqual("body");
     });
 
     it("sets the request required status", function() {
@@ -60,8 +60,7 @@ describe("Controller Method Argument Decorators", function() {
       const metadata = getControllerMethodMetadata(
         TestClass.prototype["testMethod"]
       )!;
-      const argMetadata = metadata
-        .handlerArgs[1] as PathParamControllerMethodArgMetadata;
+      const argMetadata = metadata.handlerArgs![1] as PathParamControllerMethodArgMetadata;
       expect(argMetadata.type).toEqual("pathParam");
     });
 
@@ -69,8 +68,7 @@ describe("Controller Method Argument Decorators", function() {
       const metadata = getControllerMethodMetadata(
         TestClass.prototype["testMethod"]
       )!;
-      const argMetadata = metadata
-        .handlerArgs[1] as PathParamControllerMethodArgMetadata;
+      const argMetadata = metadata.handlerArgs![1] as PathParamControllerMethodArgMetadata;
       expect(argMetadata.paramName).toEqual(paramName);
     });
 
@@ -98,8 +96,7 @@ describe("Controller Method Argument Decorators", function() {
       const metadata = getControllerMethodMetadata(
         TestClass.prototype["testMethod"]
       )!;
-      const argMetadata = metadata
-        .handlerArgs[1] as QueryParamControllerMethodArgMetadata;
+      const argMetadata = metadata.handlerArgs![1] as QueryParamControllerMethodArgMetadata;
       expect(argMetadata.type).toEqual("queryParam");
     });
 
@@ -107,8 +104,7 @@ describe("Controller Method Argument Decorators", function() {
       const metadata = getControllerMethodMetadata(
         TestClass.prototype["testMethod"]
       )!;
-      const argMetadata = metadata
-        .handlerArgs[1] as QueryParamControllerMethodArgMetadata;
+      const argMetadata = metadata.handlerArgs![1] as QueryParamControllerMethodArgMetadata;
       expect(argMetadata.paramName).toEqual(paramName);
     });
 
@@ -140,7 +136,7 @@ describe("Controller Method Argument Decorators", function() {
       const metadata = getControllerMethodMetadata(
         TestClass.prototype["testMethod"]
       )!;
-      expect(metadata.handlerArgs[1].type).toEqual("request");
+      expect(metadata.handlerArgs![1].type).toEqual("request");
     });
   });
 
@@ -157,7 +153,7 @@ describe("Controller Method Argument Decorators", function() {
       const metadata = getControllerMethodMetadata(
         TestClass.prototype["testMethod"]
       )!;
-      expect(metadata.handlerArgs[1].type).toEqual("response");
+      expect(metadata.handlerArgs![1].type).toEqual("response");
     });
   });
 });

@@ -19,7 +19,7 @@ export interface ControllerMethodMetadata {
 
   responses?: Record<number, ResponseMetadata>;
 
-  handlerArgs: ControllerMethodArgMetadata[];
+  handlerArgs?: ControllerMethodArgMetadata[];
 
   swaggerOverride?: any;
 }
