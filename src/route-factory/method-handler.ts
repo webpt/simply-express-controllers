@@ -186,6 +186,10 @@ export class MethodHandler {
 
   private _collectMethodArgs(req: Request, res: Response): any[] {
     const { handlerArgs } = this._methodMetadata;
+    if (!handlerArgs) {
+      return [];
+    }
+
     return handlerArgs.map((argMetadata) =>
       this._collectArg(req, res, argMetadata)
     );
