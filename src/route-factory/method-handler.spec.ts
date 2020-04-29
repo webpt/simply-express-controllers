@@ -508,7 +508,7 @@ describe("Method Handler", function() {
     await handler.handleRequest(req, res, next);
 
     expect(next).not.toBeCalled();
-    expect(res.send).toBeCalledWith(result);
+    expect(res.json).toBeCalledWith(result);
   });
 
   it("supports non-promise-returning methods", async function() {
@@ -525,7 +525,7 @@ describe("Method Handler", function() {
     await handler.handleRequest(req, res, next);
 
     expect(next).not.toBeCalled();
-    expect(res.send).toBeCalledWith(result);
+    expect(res.json).toBeCalledWith(result);
   });
 
   describe("Response Validation", function() {
@@ -550,7 +550,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalled();
+      expect(res.json).toBeCalled();
     });
 
     it("passes a validated response", async function() {
@@ -577,7 +577,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalled();
+      expect(res.json).toBeCalled();
     });
 
     it("responds to an invalid response with INTERNAL_SERVER_ERROR", async function() {
@@ -625,7 +625,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(response);
+      expect(res.json).toBeCalledWith(response);
     });
 
     it("supports array responses", async function() {
@@ -641,7 +641,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(response);
+      expect(res.json).toBeCalledWith(response);
     });
 
     it("supports object responses", async function() {
@@ -657,7 +657,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(response);
+      expect(res.json).toBeCalledWith(response);
     });
 
     it("supports string responses through result()", async function() {
@@ -673,7 +673,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(response);
+      expect(res.json).toBeCalledWith(response);
     });
 
     it("supports array responses through result()", async function() {
@@ -689,7 +689,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(response);
+      expect(res.json).toBeCalledWith(response);
     });
 
     it("supports object responses through result()", async function() {
@@ -705,7 +705,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(response);
+      expect(res.json).toBeCalledWith(response);
     });
 
     it("sets headers according to the response", async function() {
@@ -797,7 +797,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(methodResult);
+      expect(res.json).toBeCalledWith(methodResult);
     });
 
     it("sends the result when result() is used", async function() {
@@ -817,7 +817,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(rawResult);
+      expect(res.json).toBeCalledWith(rawResult);
     });
   });
 });
@@ -841,7 +841,7 @@ function createResponse(): Response {
   res.setHeader = jest.fn().mockReturnValue(res);
   res.cookie = jest.fn().mockReturnValue(res);
   res.status = jest.fn().mockReturnValue(res);
-  res.send = jest.fn().mockReturnValue(res);
+  res.json = jest.fn().mockReturnValue(res);
   return res;
 }
 
