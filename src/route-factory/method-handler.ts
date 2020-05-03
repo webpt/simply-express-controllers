@@ -107,7 +107,7 @@ export class MethodHandler {
     // The method may or may not have returned a promise.  Await it if so.
     let result = await maybeAwaitPromise(methodResult);
 
-    if (!result) {
+    if (result === undefined) {
       // Throw an error to the user.  Express will return this into a 500.
       throw new Error("Controller methods must return a result.");
     }
