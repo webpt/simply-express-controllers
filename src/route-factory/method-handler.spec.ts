@@ -529,6 +529,23 @@ describe("Method Handler", function() {
   });
 
   describe("Response Validation", function() {
+    it("Allows a falsey result", async function() {
+      const methodResult = result(0);
+
+      const method = jest.fn().mockReturnValue(methodResult);
+      const metadata = createMethodMetadata({});
+      const handler = new MethodHandler(method, metadata, dummyController);
+
+      const req = createRequest({});
+      const res = createResponse();
+      const next = jest.fn();
+
+      await handler.handleRequest(req, res, next);
+
+      expect(next).not.toBeCalled();
+      expect(res.json).toBeCalled();
+    });
+
     it("Allows a non-validated response", async function() {
       const statusCode = 123;
       const methodResult = result({ foo: 42 }).status(statusCode);

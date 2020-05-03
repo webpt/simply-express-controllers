@@ -5,7 +5,7 @@ import bodyParser from "body-parser";
 import {
   getControllerMetadata,
   ControllerMetadata,
-  ControllerMethodMetadata
+  ControllerMethodMetadata,
 } from "../metadata";
 import { Controller } from "../types";
 
@@ -15,7 +15,7 @@ import { MethodHandler } from "./method-handler";
 
 export function createControllerRoute(...controllers: object[]): Router {
   const router = Router();
-  router.use(bodyParser.json());
+  router.use(bodyParser.json({ strict: false }));
 
   for (const controller of controllers) {
     linkControllerToRoute(controller as any, router);
