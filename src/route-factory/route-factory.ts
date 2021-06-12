@@ -5,7 +5,7 @@ import bodyParser from "body-parser";
 import {
   getControllerMetadata,
   ControllerMetadata,
-  ControllerMethodMetadata
+  ControllerMethodMetadata,
 } from "../metadata";
 import { Controller } from "../types";
 
@@ -31,6 +31,11 @@ function linkControllerToRoute(controller: Controller, route: Router) {
     );
   }
 
+  const controllerRouter = Router();
+  for (const middleware in controllerMetadata.middleware ?? []) {
+    controllerRouter.use(middleware);
+  }
+
   const methods = getControllerMethods(controller);
   for (const { metadata: methodMetadata, method } of methods) {
     linkControllerMethodToRoute(
@@ -38,9 +43,11 @@ function linkControllerToRoute(controller: Controller, route: Router) {
       controllerMetadata,
       method,
       methodMetadata,
-      route
+      controllerRouter
     );
   }
+
+  route.use(controllerRouter);
 }
 
 function linkControllerMethodToRoute(

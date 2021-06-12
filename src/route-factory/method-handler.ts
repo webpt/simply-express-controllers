@@ -132,10 +132,8 @@ export class MethodHandler {
     }
 
     for (const key of Object.keys(cookies)) {
-      const settings = cookies[key];
-      const { value } = settings;
-      delete settings.value;
-      res.cookie(key, value, settings);
+      const { value, ...cookieSettings } = cookies[key];
+      res.cookie(key, value, cookieSettings);
     }
 
     // Set the status code.

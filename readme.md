@@ -31,6 +31,23 @@ class WidgetController {
 }
 ```
 
+### Adding middleware
+
+Middleware can be added on a per-controller basis by using the `@use` decorator.
+
+```js
+import { controller } from "simply-express-controllers";
+import cors from "cors";
+
+// Path is optional, and defaults to "/".
+@controller("/widgets")
+@use(cors())
+class WidgetController {
+  // _repo is an example repository that will be used in future examples.
+  constructor(private _repo: WidgetRepo) {}
+}
+```
+
 ### Creating a route handler
 
 Route handlers are created by decorating an async function on the controller with the appropriate decorator for the http method desired.
@@ -525,7 +542,7 @@ import express from "express";
 import { createSwaggerPaths } from "simply-express-controllers";
 import {
   serve as swaggerServe,
-  setup as swaggerSetup
+  setup as swaggerSetup,
 } from "swagger-ui-express";
 
 import { WidgetController } from "./controllers/WidgetController";
@@ -537,15 +554,15 @@ const swaggerDocs = {
   info: {
     title: "Soapdish Example",
     description: "Hello World",
-    version: "1.0.0"
+    version: "1.0.0",
   },
   servers: [
     {
       url: "http://localhost:8080",
-      description: "The Server"
-    }
+      description: "The Server",
+    },
   ],
-  paths: createSwaggerPaths(...controllers)
+  paths: createSwaggerPaths(...controllers),
 };
 
 const app = express();

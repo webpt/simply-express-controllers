@@ -1,9 +1,11 @@
 import { merge } from "lodash";
+import { RequestHandler } from "express";
 
 import createSymbol from "../create-symbol";
 
 export interface ControllerMetadata {
   path: string;
+  middleware?: RequestHandler[];
 }
 
 const ControllerMetadataSymbol = createSymbol("controller-metadata");
