@@ -107,7 +107,7 @@ export class MethodHandler {
     // The method may or may not have returned a promise.  Await it if so.
     let result = await maybeAwaitPromise(methodResult);
 
-    if (!result) {
+    if (result === undefined) {
       // Throw an error to the user.  Express will return this into a 500.
       throw new Error("Controller methods must return a result.");
     }
@@ -131,6 +131,7 @@ export class MethodHandler {
       res.setHeader(key, headers[key]);
     }
 
+    // Set requested cookies.
     for (const key of Object.keys(cookies)) {
       const { value, ...cookieSettings } = cookies[key];
       res.cookie(key, value, cookieSettings);
@@ -140,7 +141,7 @@ export class MethodHandler {
     res.status(statusCode);
 
     // Send the result.
-    res.send(result);
+    res.json(result);
   }
 
   private _validateRequest(req: Request) {

@@ -252,7 +252,7 @@ class WidgetController {
   // Create a handler for `/widgets/:widgetId`
   @get("/:widget_id")
   async getWidgetById(
-    @path("widget_id", {schema: {type: "integer"}})
+    @pathParam("widget_id", {schema: {type: "integer"}})
     widgetId: number
   ) {
     return await this._repo.getWidgetById(widgetId);
@@ -280,7 +280,7 @@ class WidgetController {
   @response(404, { description: "The widget was not found."})
   @response(500, { description: "The server encountered an error fetching the widget."})
   async getWidgetById(
-    @path("widgetId", {type: "integer"})
+    @pathParam("widgetId", {type: "integer"})
     widgetId: number
   ) {
     try {

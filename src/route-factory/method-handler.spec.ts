@@ -508,7 +508,7 @@ describe("Method Handler", function() {
     await handler.handleRequest(req, res, next);
 
     expect(next).not.toBeCalled();
-    expect(res.send).toBeCalledWith(result);
+    expect(res.json).toBeCalledWith(result);
   });
 
   it("supports non-promise-returning methods", async function() {
@@ -525,10 +525,27 @@ describe("Method Handler", function() {
     await handler.handleRequest(req, res, next);
 
     expect(next).not.toBeCalled();
-    expect(res.send).toBeCalledWith(result);
+    expect(res.json).toBeCalledWith(result);
   });
 
   describe("Response Validation", function() {
+    it("Allows a falsey result", async function() {
+      const methodResult = result(0);
+
+      const method = jest.fn().mockReturnValue(methodResult);
+      const metadata = createMethodMetadata({});
+      const handler = new MethodHandler(method, metadata, dummyController);
+
+      const req = createRequest({});
+      const res = createResponse();
+      const next = jest.fn();
+
+      await handler.handleRequest(req, res, next);
+
+      expect(next).not.toBeCalled();
+      expect(res.json).toBeCalled();
+    });
+
     it("Allows a non-validated response", async function() {
       const statusCode = 123;
       const methodResult = result({ foo: 42 }).status(statusCode);
@@ -550,7 +567,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalled();
+      expect(res.json).toBeCalled();
     });
 
     it("passes a validated response", async function() {
@@ -577,7 +594,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalled();
+      expect(res.json).toBeCalled();
     });
 
     it("responds to an invalid response with INTERNAL_SERVER_ERROR", async function() {
@@ -625,7 +642,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(response);
+      expect(res.json).toBeCalledWith(response);
     });
 
     it("supports array responses", async function() {
@@ -641,7 +658,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(response);
+      expect(res.json).toBeCalledWith(response);
     });
 
     it("supports object responses", async function() {
@@ -657,7 +674,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(response);
+      expect(res.json).toBeCalledWith(response);
     });
 
     it("supports string responses through result()", async function() {
@@ -673,7 +690,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(response);
+      expect(res.json).toBeCalledWith(response);
     });
 
     it("supports array responses through result()", async function() {
@@ -689,7 +706,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(response);
+      expect(res.json).toBeCalledWith(response);
     });
 
     it("supports object responses through result()", async function() {
@@ -705,7 +722,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(response);
+      expect(res.json).toBeCalledWith(response);
     });
 
     it("sets headers according to the response", async function() {
@@ -797,7 +814,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(methodResult);
+      expect(res.json).toBeCalledWith(methodResult);
     });
 
     it("sends the result when result() is used", async function() {
@@ -817,7 +834,7 @@ describe("Method Handler", function() {
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.send).toBeCalledWith(rawResult);
+      expect(res.json).toBeCalledWith(rawResult);
     });
   });
 });
@@ -841,7 +858,7 @@ function createResponse(): Response {
   res.setHeader = jest.fn().mockReturnValue(res);
   res.cookie = jest.fn().mockReturnValue(res);
   res.status = jest.fn().mockReturnValue(res);
-  res.send = jest.fn().mockReturnValue(res);
+  res.json = jest.fn().mockReturnValue(res);
   return res;
 }
 
