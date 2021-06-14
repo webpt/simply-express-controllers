@@ -1,4 +1,4 @@
-import { setControllerMetadata } from "../metadata/controller";
+import { appendControllerMetadata } from "../metadata/controller";
 
 /**
  * Annotates this class as being a controller.
@@ -6,8 +6,8 @@ import { setControllerMetadata } from "../metadata/controller";
  */
 export function controller(path: string): ClassDecorator {
   return (target: any) => {
-    setControllerMetadata(target, {
-      path
+    appendControllerMetadata(target, {
+      path,
     });
   };
 }
