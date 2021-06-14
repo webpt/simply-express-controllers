@@ -31,55 +31,55 @@ function linkControllerToRoute(controller: Controller, route: Router) {
     );
   }
 
+  const controllerRouter = Router();
+  for (const middleware of controllerMetadata.middleware ?? []) {
+    controllerRouter.use(middleware);
+  }
+
   const methods = getControllerMethods(controller);
   for (const { metadata: methodMetadata, method } of methods) {
     linkControllerMethodToRoute(
       controller,
-      controllerMetadata,
       method,
       methodMetadata,
-      route
+      controllerRouter
     );
   }
+
+  route.use(controllerMetadata.path || "/", controllerRouter);
 }
 
 function linkControllerMethodToRoute(
   controller: Controller,
-  controllerMetadata: ControllerMetadata,
   method: Function,
   methodMetadata: ControllerMethodMetadata,
   route: Router
 ) {
-  const { middleware = [] } = controllerMetadata;
   const methodHandler = new MethodHandler(method, methodMetadata, controller);
   // handleRequest is pre-bound by MethodHandler
   const handler = methodHandler.handleRequest;
-
-  const path = pathUtils.posix.join(
-    controllerMetadata.path || "/",
-    methodMetadata.path || "/"
-  );
+  const path = methodMetadata.path ?? "/";
   switch (methodMetadata.method) {
     case "GET":
-      route.get(path, ...middleware, handler);
+      route.get(path, handler);
       break;
     case "POST":
-      route.post(path, ...middleware, handler);
+      route.post(path, handler);
       break;
     case "PUT":
-      route.put(path, ...middleware, handler);
+      route.put(path, handler);
       break;
     case "PATCH":
-      route.patch(path, ...middleware, handler);
+      route.patch(path, handler);
       break;
     case "DELETE":
-      route.delete(path, ...middleware, handler);
+      route.delete(path, handler);
       break;
     case "TRACE":
-      route.trace(path, ...middleware, handler);
+      route.trace(path, handler);
       break;
     case "CONNECT":
-      route.connect(path, ...middleware, handler);
+      route.connect(path, handler);
       break;
     default:
       throw new Error(
