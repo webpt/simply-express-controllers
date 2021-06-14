@@ -31,11 +31,6 @@ function linkControllerToRoute(controller: Controller, route: Router) {
     );
   }
 
-  const controllerRouter = Router();
-  for (const middleware in controllerMetadata.middleware ?? []) {
-    controllerRouter.use(middleware);
-  }
-
   const methods = getControllerMethods(controller);
   for (const { metadata: methodMetadata, method } of methods) {
     linkControllerMethodToRoute(
@@ -43,11 +38,9 @@ function linkControllerToRoute(controller: Controller, route: Router) {
       controllerMetadata,
       method,
       methodMetadata,
-      controllerRouter
+      route
     );
   }
-
-  route.use(controllerRouter);
 }
 
 function linkControllerMethodToRoute(
@@ -57,6 +50,7 @@ function linkControllerMethodToRoute(
   methodMetadata: ControllerMethodMetadata,
   route: Router
 ) {
+  const { middleware = [] } = controllerMetadata;
   const methodHandler = new MethodHandler(method, methodMetadata, controller);
   // handleRequest is pre-bound by MethodHandler
   const handler = methodHandler.handleRequest;
@@ -67,25 +61,25 @@ function linkControllerMethodToRoute(
   );
   switch (methodMetadata.method) {
     case "GET":
-      route.get(path, handler);
+      route.get(path, ...middleware, handler);
       break;
     case "POST":
-      route.post(path, handler);
+      route.post(path, ...middleware, handler);
       break;
     case "PUT":
-      route.put(path, handler);
+      route.put(path, ...middleware, handler);
       break;
     case "PATCH":
-      route.patch(path, handler);
+      route.patch(path, ...middleware, handler);
       break;
     case "DELETE":
-      route.delete(path, handler);
+      route.delete(path, ...middleware, handler);
       break;
     case "TRACE":
-      route.trace(path, handler);
+      route.trace(path, ...middleware, handler);
       break;
     case "CONNECT":
-      route.connect(path, handler);
+      route.connect(path, ...middleware, handler);
       break;
     default:
       throw new Error(

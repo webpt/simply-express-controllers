@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0
+
+- Support middleware at the controller level.
+
 ## 1.1.8
 
 - Allow receiving number, string, boolean as body data.
