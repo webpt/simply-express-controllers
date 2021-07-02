@@ -117,6 +117,10 @@ export class MethodHandler {
     let cookies: Record<string, ResultBuilderCookie> = {};
 
     if (result instanceof ResultBuilder) {
+      if (result.handled) {
+        return;
+      }
+
       statusCode = result.statusCode;
       headers = result.headers;
       cookies = result.cookies;

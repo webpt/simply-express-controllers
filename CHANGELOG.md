@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.0
+
+- Add `result.handled()` to bypass response processing when the response was handled by the controller method.
+
 ## 1.2.0
 
 - Support middleware at the controller level.

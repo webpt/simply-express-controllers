@@ -1,12 +1,19 @@
 export class ResultBuilder {
+  handled: boolean = false;
+
   body: any;
 
   statusCode: number = 200;
   headers: Record<string, string> = {};
   cookies: Record<string, ResultBuilderCookie> = {};
 
-  constructor(body: any) {
+  constructor(body?: any) {
     this.body = body;
+  }
+
+  setHandled() {
+    this.handled = true;
+    return this;
   }
 
   /**
@@ -96,10 +103,23 @@ export interface ResultBuilderCookie extends CookieSettings {
   value: string;
 }
 
+export interface ResultFactory {
+  handled(): ResultBuilder;
+  (body?: any): ResultBuilder;
+}
+
+const resultPartial: any = function result(body?: any): ResultBuilder {
+  return new ResultBuilder(body);
+};
+
+resultPartial.handled = () => {
+  const builder = new ResultBuilder();
+  builder.setHandled();
+  return builder;
+};
+
 /**
  * Utility function to assist in building controller results.
  * @param body The body data to return as the result.
  */
-export function result(body: any): ResultBuilder {
-  return new ResultBuilder(body);
-}
+export const result: ResultFactory = resultPartial;

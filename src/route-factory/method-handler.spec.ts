@@ -837,6 +837,24 @@ describe("Method Handler", function() {
       expect(res.json).toBeCalledWith(rawResult);
     });
   });
+
+  describe("Response Bypass", function() {
+    it("supports result.handled()", async function() {
+      const response = result.handled();
+      const method = jest.fn().mockReturnValue(response);
+      const metadata = createMethodMetadata();
+      const handler = new MethodHandler(method, metadata, dummyController);
+
+      const req = createRequest();
+      const res = createResponse();
+      const next = jest.fn();
+
+      await handler.handleRequest(req, res, next);
+
+      expect(next).not.toBeCalled();
+      expect(res.status).not.toBeCalled();
+    });
+  });
 });
 
 interface RequestOpts {
