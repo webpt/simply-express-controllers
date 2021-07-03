@@ -140,6 +140,72 @@ class WidgetController {
 }
 ```
 
+### Returning varying result types
+
+By default, the library will interpret raw objects returned to it as json data to be sent. If no other Content-Type header is set, it will be set to "application/json".
+
+To tell the library how to interpret your result, Wrap your result with the `result` function.
+
+The content type can be chosen in a few ways. Note that all of these will try specifying a Content-Header if you do not specify your own (see [Returning custom status codes and headers with the result](#returning_custom_status_codes_and_headers_with_the_result)).
+
+- `result(body: object | array | string | number | boolean)`: The body will be json serialized. A Content-Type of "application/json" will be sent if not overridden.
+- `result({raw: true}, body: string)`: The body will be sent as a raw response without any json serialization. A Content-Type of "application/json" will be sent if not overridden.
+- `result(contentType: "application/json", body: any)`: The body will be json serialized. A Content-Type of "application/json" will be sent if not overridden.
+- `result(contentType: "application/json", {raw: true}, body: string)`: The body will be sent raw. A Content-Type of "application/json" will be sent if not overridden.
+- `result(contentType: string, body: any)`: For non application/json content types, the body will be serialized if it is an object type, or sent as text if it is a primitive. The specified content type will be sent as the Content-Type header if not overridden.
+
+```js
+class WidgetController {
+  constructor(private _repo: WidgetRepo) {}
+
+  @get({
+    summary: "Gets an array of all widgets",
+    tags: ["widget"]
+  })
+  async getWidgets() {
+    return await this._repo.getWidgets();
+  }
+
+  @get("/newest", {
+    summary: "Gets the newest widget",
+    description: "The most recent widget to be created will be returned.",
+    tags: ["widget"]
+  })
+  async getNewestWidget() {
+    const widget = await this._repo.getNewestWidget();
+    return result.json(widget);
+  }
+
+  @get("/text-example")
+  getTextExample() {
+    return result.text("Hello World")
+  }
+
+  @get("/html-example")
+  gethtmlExample() {
+    return result.html("<html><body>Hello World</body></html>");
+  }
+
+  @get("/raw-json")
+  getRawJsonExample() {
+    // The raw option lets you send raw json.
+    return result({raw: true}, `{"foo": "bar"}`});
+  }
+
+  @get("/custom-example-json")
+  getTextExample() {
+    // Since the body is an object, it will be json serialized.
+    return result("foo/bar", {foo: true})
+  }
+
+  @get("/custom-example-raw")
+  getTextExample() {
+    // Since the body is text, it will be sent as-is.
+    return result("foo/bar", `Hello World`)
+  }
+}
+```
+
 ### Documenting the response
 
 While not required, documenting responses provides two benefits:

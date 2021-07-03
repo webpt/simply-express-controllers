@@ -1,19 +1,24 @@
+export interface ResultOptions {
+  raw?: boolean;
+}
+
 export class ResultBuilder {
   handled: boolean = false;
 
+  contentType: string | undefined;
   body: any;
+  raw: boolean = false;
 
   statusCode: number = 200;
   headers: Record<string, string> = {};
   cookies: Record<string, ResultBuilderCookie> = {};
 
-  constructor(body?: any) {
+  constructor(body: any, contentType: string | undefined, opts: ResultOptions) {
+    this.contentType = contentType;
     this.body = body;
-  }
+    this.raw = opts.raw ?? false;
 
-  setHandled() {
-    this.handled = true;
-    return this;
+    this.handled = this.body === undefined;
   }
 
   /**
@@ -104,18 +109,101 @@ export interface ResultBuilderCookie extends CookieSettings {
 }
 
 export interface ResultFactory {
+  /**
+   * Return a value indicating that the controller sent a response and no further action is needed.
+   */
   handled(): ResultBuilder;
-  (body?: any): ResultBuilder;
+
+  /**
+   * Creates a result containing json data.
+   * The body object will be stringified as json data.
+   */
+  json(body: any): ResultBuilder;
+
+  /**
+   * Creates a result containing json data.
+   * If the raw option is not set, the body will be stringified as json data.
+   */
+  json(opts: ResultOptions, body: any): ResultBuilder;
+
+  /**
+   * Creates a result containing text data.
+   */
+  text(body: string): ResultBuilder;
+
+  /**
+   * Creates a resutl containing html data.
+   */
+  html(body: string): ResultBuilder;
+
+  /**
+   * Sends a result as json data.
+   * The body will be serialized as json, and a content type of "application/json" will be set if no other content type is specified.
+   * @param body The json object body of the response.
+   */
+  (body: any): ResultBuilder;
+
+  /**
+   * Sends a result as json data.
+   * The body will be serialized as json if the raw option is not set, and a content type of "application/json" will be set if no other content type is specified.
+   * @param opts Options for body serialization.
+   * @param body The json object body of the response.
+   */
+  (opts: ResultOptions, body: any): ResultBuilder;
+
+  /**
+   * Sends a result as the given content type.
+   * If the content type is "application/json", the body will be serialized as json data.
+   * The specified content type will be sent as the Content-Type header if not overridden.
+   * @param contentType The content type to interpret the response by.  This can be overridden by a Content-Type header if the final content type should differ.
+   * @param body The body of the response, if any is desired.
+   */
+  (contentType: string, body: any): ResultBuilder;
+
+  /**
+   * Sends a result as the given content type.
+   * If the content type is "application/json" and the raw option is not set, the body will be serialized as json data.
+   * The specified content type will be sent as the Content-Type header if not overridden.
+   * @param contentType The content type to interpret the response by.  This can be overridden by a Content-Type header if the final content type should differ.
+   * @param opts Additional options for the handling of the result.
+   * @param body The body of the response, if any is desired.
+   */
+  (contentType: string, opts: ResultOptions, body: any): ResultBuilder;
 }
 
-const resultPartial: any = function result(body?: any): ResultBuilder {
-  return new ResultBuilder(body);
+const resultPartial: any = function result(...args: any[]): ResultBuilder {
+  if (args.length === 3) {
+    return new ResultBuilder(args[3], args[1], args[2]);
+  }
+  if (args.length === 2) {
+    return new ResultBuilder(args[1], args[0], {});
+  } else if (args.length === 1) {
+    return new ResultBuilder(args[0], "application/json", {});
+  }
+
+  throw new Error("Unexpected argument count.");
 };
 
 resultPartial.handled = () => {
-  const builder = new ResultBuilder();
-  builder.setHandled();
-  return builder;
+  return new ResultBuilder(undefined, undefined, {});
+};
+
+resultPartial.json = (...args: any[]) => {
+  if (args.length === 2) {
+    return new ResultBuilder(args[1], "application/json", args[0]);
+  } else if (args.length === 1) {
+    return new ResultBuilder(args[0], "application/json", {});
+  }
+
+  throw new Error("Unexpected argument count.");
+};
+
+resultPartial.text = (body: string) => {
+  return new ResultBuilder(body, "text/plain", {});
+};
+
+resultPartial.html = (body: string) => {
+  return new ResultBuilder(body, "text/html", {});
 };
 
 /**

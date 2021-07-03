@@ -800,21 +800,52 @@ describe("Method Handler", function() {
       );
     });
 
-    it("sends the raw result", async function() {
-      const methodResult = { foo: 42 };
-
-      const method = jest.fn().mockReturnValue(Promise.resolve(methodResult));
+    it("transmits data as json if no content type is specified", async function() {
+      const response = result("hello world");
+      const method = jest.fn().mockReturnValue(response);
       const metadata = createMethodMetadata();
       const handler = new MethodHandler(method, metadata, dummyController);
 
-      const req = createRequest({});
+      const req = createRequest();
       const res = createResponse();
       const next = jest.fn();
 
       await handler.handleRequest(req, res, next);
 
       expect(next).not.toBeCalled();
-      expect(res.json).toBeCalledWith(methodResult);
+      expect(res.json).toBeCalledWith("hello world");
+    });
+
+    it("transmits data as text if the raw option is used", async function() {
+      const response = result({ raw: true }, "hello world");
+      const method = jest.fn().mockReturnValue(response);
+      const metadata = createMethodMetadata();
+      const handler = new MethodHandler(method, metadata, dummyController);
+
+      const req = createRequest();
+      const res = createResponse();
+      const next = jest.fn();
+
+      await handler.handleRequest(req, res, next);
+
+      expect(next).not.toBeCalled();
+      expect(res.send).toBeCalledWith("hello world");
+    });
+
+    it("transmits data raw if the content type is not application/json", async function() {
+      const response = result("text/plain", "hello world");
+      const method = jest.fn().mockReturnValue(response);
+      const metadata = createMethodMetadata();
+      const handler = new MethodHandler(method, metadata, dummyController);
+
+      const req = createRequest();
+      const res = createResponse();
+      const next = jest.fn();
+
+      await handler.handleRequest(req, res, next);
+
+      expect(next).not.toBeCalled();
+      expect(res.send).toBeCalledWith("hello world");
     });
 
     it("sends the result when result() is used", async function() {
@@ -836,10 +867,8 @@ describe("Method Handler", function() {
       expect(next).not.toBeCalled();
       expect(res.json).toBeCalledWith(rawResult);
     });
-  });
 
-  describe("Response Bypass", function() {
-    it("supports result.handled()", async function() {
+    it("sends no response when result.handled() is used", async function() {
       const response = result.handled();
       const method = jest.fn().mockReturnValue(response);
       const metadata = createMethodMetadata();
@@ -853,6 +882,62 @@ describe("Method Handler", function() {
 
       expect(next).not.toBeCalled();
       expect(res.status).not.toBeCalled();
+    });
+
+    describe("Content Types", function() {
+      it("specifies the application/json content type if none is given", async function() {
+        const response = result({ foo: true });
+        const method = jest.fn().mockReturnValue(response);
+        const metadata = createMethodMetadata();
+        const handler = new MethodHandler(method, metadata, dummyController);
+
+        const req = createRequest();
+        const res = createResponse();
+        const next = jest.fn();
+
+        await handler.handleRequest(req, res, next);
+
+        expect(next).not.toBeCalled();
+        expect(res.setHeader).toBeCalledWith(
+          "Content-Type",
+          "application/json"
+        );
+      });
+
+      it("specifies a content type if one is provided.", async function() {
+        const response = result("foo/bar", { foo: true });
+        const method = jest.fn().mockReturnValue(response);
+        const metadata = createMethodMetadata();
+        const handler = new MethodHandler(method, metadata, dummyController);
+
+        const req = createRequest();
+        const res = createResponse();
+        const next = jest.fn();
+
+        await handler.handleRequest(req, res, next);
+
+        expect(next).not.toBeCalled();
+        expect(res.setHeader).toBeCalledWith("Content-Type", "foo/bar");
+      });
+
+      it("yields to the header-provided content type if specified", async function() {
+        const response = result("foo/bar", { foo: true }).header(
+          "Content-Type",
+          "foo/baz"
+        );
+        const method = jest.fn().mockReturnValue(response);
+        const metadata = createMethodMetadata();
+        const handler = new MethodHandler(method, metadata, dummyController);
+
+        const req = createRequest();
+        const res = createResponse();
+        const next = jest.fn();
+
+        await handler.handleRequest(req, res, next);
+
+        expect(next).not.toBeCalled();
+        expect(res.setHeader).toBeCalledWith("Content-Type", "foo/baz");
+      });
     });
   });
 });
@@ -877,6 +962,7 @@ function createResponse(): Response {
   res.cookie = jest.fn().mockReturnValue(res);
   res.status = jest.fn().mockReturnValue(res);
   res.json = jest.fn().mockReturnValue(res);
+  res.send = jest.fn().mockReturnValue(res);
   return res;
 }
 

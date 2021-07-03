@@ -105,7 +105,7 @@ export class MethodHandler {
     const methodResult = this._method.apply(this._controller, args);
 
     // The method may or may not have returned a promise.  Await it if so.
-    let result = await maybeAwaitPromise(methodResult);
+    let result: any = await maybeAwaitPromise(methodResult);
 
     if (result === undefined) {
       // Throw an error to the user.  Express will return this into a 500.
@@ -115,6 +115,9 @@ export class MethodHandler {
     let statusCode = 200;
     let headers: Record<string, string> = {};
     let cookies: Record<string, ResultBuilderCookie> = {};
+    let body: any = result;
+    let contentType: string | undefined = undefined;
+    let sendRaw = false;
 
     if (result instanceof ResultBuilder) {
       if (result.handled) {
@@ -124,11 +127,30 @@ export class MethodHandler {
       statusCode = result.statusCode;
       headers = result.headers;
       cookies = result.cookies;
-      result = result.body;
+      contentType = result.contentType;
+      sendRaw = result.raw;
+
+      body = result.body;
     }
 
-    // Ensure the response matches the documented response.
-    this._validateResponse(statusCode, result);
+    const hasBody = result !== undefined;
+    const headerContentType =
+      headers["Content-Type"] ?? headers["content-type"];
+
+    if (hasBody) {
+      // Ensure the response matches the documented response.
+      this._validateResponse(statusCode, body);
+
+      if (contentType === undefined) {
+        // Assume body is json by default.
+        // text/plain might make more sense for strings, but this preserves backwards compatibility.
+        contentType = headerContentType ?? "application/json";
+      }
+    }
+
+    if (contentType != null && headerContentType == null) {
+      headers["Content-Type"] = contentType;
+    }
 
     // Set any headers that were requested.
     for (const key of Object.keys(headers)) {
@@ -144,8 +166,20 @@ export class MethodHandler {
     // Set the status code.
     res.status(statusCode);
 
-    // Send the result.
-    res.json(result);
+    if (hasBody) {
+      if (sendRaw) {
+        res.send(body);
+      } else if (
+        contentType === "application/json" ||
+        typeof body === "object"
+      ) {
+        res.json(body);
+      } else {
+        res.send(body);
+      }
+    } else {
+      res.end();
+    }
   }
 
   private _validateRequest(req: Request) {
