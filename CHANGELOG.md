@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.0
+
+- Support middleware on methods with `@use`
+- Support creating custom decorators for parameters.
+
 ## 1.4.0
 
 - Add options for sending other body formats than json serialized.
