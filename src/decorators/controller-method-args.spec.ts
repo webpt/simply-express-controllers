@@ -4,12 +4,15 @@ import {
   queryParam,
   expressRequest,
   expressResponse,
+  createRequestDecorator,
 } from "./controller-method-args";
 import {
+  CustomValueFactoryControllerMethodArgMetadata,
   getControllerMethodMetadata,
   PathParamControllerMethodArgMetadata,
   QueryParamControllerMethodArgMetadata,
 } from "../metadata";
+import { Request } from "express";
 
 describe("Controller Method Argument Decorators", function() {
   describe("@body", function() {
@@ -120,6 +123,61 @@ describe("Controller Method Argument Decorators", function() {
         TestClass.prototype["testMethod"]
       )!;
       expect(metadata.queryParams![paramName].required).toEqual(required);
+    });
+  });
+
+  describe("createRequestDecorator", function() {
+    describe("no options", function() {
+      const valueFactory = () => 42;
+      const customDecorator = createRequestDecorator(valueFactory);
+
+      class TestClass {
+        testMethod(
+          @customDecorator()
+          dummyArg: number
+        ) {}
+      }
+
+      it("sets the parameter to a custom request value", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(metadata.handlerArgs![0].type).toEqual("custom-value-factory");
+      });
+
+      it("sets the value factory", function() {
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(
+          (metadata.handlerArgs![0] as CustomValueFactoryControllerMethodArgMetadata)
+            .valueFactory
+        ).toEqual(valueFactory);
+      });
+    });
+
+    describe("with options", function() {
+      it("sets the options", function() {
+        const valueFactory = (req: Request, option: string) => 42;
+        const customDecorator = createRequestDecorator(valueFactory);
+
+        const optionValue = "hello world";
+
+        class TestClass {
+          testMethod(
+            @customDecorator(optionValue)
+            dummyArg: number
+          ) {}
+        }
+
+        const metadata = getControllerMethodMetadata(
+          TestClass.prototype["testMethod"]
+        )!;
+        expect(
+          (metadata.handlerArgs![0] as CustomValueFactoryControllerMethodArgMetadata)
+            .options
+        ).toEqual(optionValue);
+      });
     });
   });
 

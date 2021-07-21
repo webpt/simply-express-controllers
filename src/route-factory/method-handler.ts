@@ -11,6 +11,7 @@ import {
   PathParamControllerMethodArgMetadata,
   QueryParamControllerMethodArgMetadata,
   ControllerMethodArgMetadata,
+  CustomValueFactoryControllerMethodArgMetadata,
 } from "../metadata";
 import { Controller } from "../types";
 import { ResultBuilderCookie, ResultBuilder } from "../method-result";
@@ -245,6 +246,9 @@ export class MethodHandler {
       case "queryParam": {
         return this._collectQueryParam(req, argMetadata);
       }
+      case "custom-value-factory": {
+        return this._collectCustomValueFactory(req, argMetadata);
+      }
       case "request": {
         return req;
       }
@@ -254,6 +258,13 @@ export class MethodHandler {
       default:
         return undefined;
     }
+  }
+
+  private _collectCustomValueFactory(
+    req: Request,
+    argMetadata: CustomValueFactoryControllerMethodArgMetadata
+  ) {
+    return argMetadata.valueFactory(req, argMetadata.options);
   }
 
   private _collectPathParam(

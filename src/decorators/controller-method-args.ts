@@ -1,8 +1,9 @@
+import { Request } from "express";
 import { JSONSchema6 } from "json-schema";
 
 import {
   appendControllerMethodMetadata,
-  ControllerMethodArgMetadata
+  ControllerMethodArgMetadata,
 } from "../metadata";
 
 export interface BodySettings {
@@ -23,14 +24,14 @@ export function body(settings: BodySettings = {}): ParameterDecorator {
   return (target: any, propertyKey: string | symbol, methodIndex: number) => {
     const partialArgs: ControllerMethodArgMetadata[] = [];
     partialArgs[methodIndex] = {
-      type: "body"
+      type: "body",
     };
     appendControllerMethodMetadata(target[propertyKey], {
       request: {
         required: settings.required,
-        schema: settings.schema
+        schema: settings.schema,
       },
-      handlerArgs: partialArgs
+      handlerArgs: partialArgs,
     });
   };
 }
@@ -60,15 +61,15 @@ export function pathParam(
     const partialArgs: ControllerMethodArgMetadata[] = [];
     partialArgs[methodIndex] = {
       type: "pathParam",
-      paramName: paramName
+      paramName: paramName,
     };
     appendControllerMethodMetadata(target[propertyKey], {
       pathParams: {
         [paramName]: {
-          schema: settings.schema
-        }
+          schema: settings.schema,
+        },
       },
-      handlerArgs: partialArgs
+      handlerArgs: partialArgs,
     });
   };
 }
@@ -103,16 +104,16 @@ export function queryParam(
     const partialArgs: ControllerMethodArgMetadata[] = [];
     partialArgs[methodIndex] = {
       type: "queryParam",
-      paramName: paramName
+      paramName: paramName,
     };
     appendControllerMethodMetadata(target[propertyKey], {
       queryParams: {
         [paramName]: {
           schema: settings.schema,
-          required: settings.required
-        }
+          required: settings.required,
+        },
       },
-      handlerArgs: partialArgs
+      handlerArgs: partialArgs,
     });
   };
 }
@@ -124,10 +125,10 @@ export function expressRequest(): ParameterDecorator {
   return (target: any, propertyKey: string | symbol, methodIndex: number) => {
     const partialArgs: ControllerMethodArgMetadata[] = [];
     partialArgs[methodIndex] = {
-      type: "request"
+      type: "request",
     };
     appendControllerMethodMetadata(target[propertyKey], {
-      handlerArgs: partialArgs
+      handlerArgs: partialArgs,
     });
   };
 }
@@ -139,10 +140,40 @@ export function expressResponse(): ParameterDecorator {
   return (target: any, propertyKey: string | symbol, methodIndex: number) => {
     const partialArgs: ControllerMethodArgMetadata[] = [];
     partialArgs[methodIndex] = {
-      type: "response"
+      type: "response",
     };
     appendControllerMethodMetadata(target[propertyKey], {
-      handlerArgs: partialArgs
+      handlerArgs: partialArgs,
     });
+  };
+}
+
+/**
+ * Creates a decorator that sets a parameter to a value obtained from the given value factory.
+ */
+export function createRequestDecorator(
+  valueFactory: (req: Request) => any
+): () => ParameterDecorator;
+export function createRequestDecorator<TOpts>(
+  valueFactory: (req: Request, opts: TOpts) => any
+): (opts: TOpts) => ParameterDecorator;
+export function createRequestDecorator<TOpts>(
+  valueFactory: (req: Request, opts?: TOpts) => any
+): (opts?: TOpts) => ParameterDecorator;
+export function createRequestDecorator<TOpts>(
+  valueFactory: (req: Request, opts: TOpts) => any
+): (opts: TOpts) => ParameterDecorator {
+  return (opts: TOpts) => {
+    return (target: any, propertyKey: string | symbol, methodIndex: number) => {
+      const partialArgs: ControllerMethodArgMetadata[] = [];
+      partialArgs[methodIndex] = {
+        type: "custom-value-factory",
+        options: opts,
+        valueFactory,
+      };
+      appendControllerMethodMetadata(target[propertyKey], {
+        handlerArgs: partialArgs,
+      });
+    };
   };
 }

@@ -8,6 +8,7 @@ import {
   QueryParamControllerMethodArgMetadata,
   RequestControllerMethodArgMetadata,
   ResponseControllerMethodArgMetadata,
+  CustomValueFactoryControllerMethodArgMetadata,
 } from "../metadata";
 import { MethodHandler } from "./method-handler";
 import { result, CookieSettings } from "../method-result";
@@ -430,7 +431,35 @@ describe("Method Handler", function() {
       });
     });
 
-    describe("request", function() {
+    describe("createRequestDecorator", function() {
+      it("invokes the value factory and returns the value", async function() {
+        const method = jest.fn().mockReturnValue({});
+        const options = "hello world";
+        const returnValue = 42;
+        const valueFactory = jest.fn().mockReturnValue(returnValue);
+        const firstArg: CustomValueFactoryControllerMethodArgMetadata = {
+          type: "custom-value-factory",
+          options,
+          valueFactory,
+        };
+        const metadata = createMethodMetadata({
+          handlerArgs: [firstArg],
+        });
+        const handler = new MethodHandler(method, metadata, dummyController);
+
+        const req = createRequest();
+        const res = createResponse();
+        const next = jest.fn();
+
+        await handler.handleRequest(req, res, next);
+
+        expect(next).not.toBeCalled();
+        expect(valueFactory).toBeCalledWith(req, options);
+        expect(method).toBeCalledWith(returnValue);
+      });
+    });
+
+    describe("expressRequest", function() {
       it("provides the request", async function() {
         const method = jest.fn().mockReturnValue({});
         const firstArg: RequestControllerMethodArgMetadata = {
@@ -452,7 +481,7 @@ describe("Method Handler", function() {
       });
     });
 
-    describe("response", function() {
+    describe("expressResponse", function() {
       it("provides the response", async function() {
         const method = jest.fn().mockReturnValue({});
         const firstArg: ResponseControllerMethodArgMetadata = {

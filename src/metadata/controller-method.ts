@@ -3,6 +3,7 @@ import { JSONSchema6 } from "json-schema";
 
 import createSymbol from "../create-symbol";
 import { Method } from "../types";
+import { Request } from "express";
 
 export interface ControllerMethodMetadata {
   method: Method;
@@ -48,10 +49,17 @@ export type ControllerMethodArgMetadata =
   | PathParamControllerMethodArgMetadata
   | BodyControllerMethodArgMetadata
   | RequestControllerMethodArgMetadata
+  | CustomValueFactoryControllerMethodArgMetadata
   | ResponseControllerMethodArgMetadata;
 
 export interface RequestControllerMethodArgMetadata {
   type: "request";
+}
+
+export interface CustomValueFactoryControllerMethodArgMetadata {
+  type: "custom-value-factory";
+  options: any;
+  valueFactory: (req: Request, options: any) => any;
 }
 
 export interface ResponseControllerMethodArgMetadata {

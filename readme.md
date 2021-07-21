@@ -534,6 +534,41 @@ class WidgetController {
 }
 ```
 
+### Extending the decorator API for custom request data
+
+Often, custom data from middleware is found on requests. For example, a user token or a logger middleware. Rather than always injecting the express request, you can create
+your own decorators to pull such values and provide them to your controllers.
+
+```js
+import { Request } from "express";
+import {
+  controller,
+  get,
+  createRequestDecorator,
+} from "simply-express-controllers";
+
+const requestUser = createRequestDecorator((req: Request) => req.user);
+
+@controller("/widgets")
+class WidgetController {
+  @get()
+  async getWidget(
+    @requestUser()
+    user
+  ) {
+    if (!userCanAccessWidgets(user)) {
+      throw createError(403, "Access Denied");
+    }
+
+    const widget = await this._repo.createWidget(widget);
+
+    return result(widget)
+      .status(201)
+      .header("Content-Location", `www.myserver.com/widgets/${widget.id}`);
+  }
+}
+```
+
 ### Overriding the swagger documentation
 
 Under most cases, the auto-generated swagger documentation should be sufficient. However, it is possible to suppress
