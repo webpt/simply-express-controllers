@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 
 import { use } from "./use";
-import { getControllerMetadata } from "../metadata";
+import {
+  getControllerMetadata,
+  getControllerMethodMetadata,
+} from "../metadata";
 
 describe("Middleware Decorators", function() {
   describe("@use on class", function() {
@@ -39,6 +42,52 @@ describe("Middleware Decorators", function() {
         middleware2,
         middleware1,
       ]);
+    });
+  });
+
+  describe("@use on method", function() {
+    it("sets the method metadata", function() {
+      class TestClass {
+        @use((req, res, next) => next())
+        testMethod() {}
+      }
+
+      const instance = new TestClass();
+
+      expect(getControllerMethodMetadata(instance.testMethod)).toBeDefined();
+    });
+
+    it("adds the middleware to the metadata", function() {
+      const middleware = (req: Request, res: Response, next: NextFunction) =>
+        next();
+      class TestClass {
+        @use(middleware)
+        testMethod() {}
+      }
+
+      const instance = new TestClass();
+
+      const metadata = getControllerMethodMetadata(instance.testMethod);
+
+      expect(metadata?.middleware).toEqual([middleware]);
+    });
+
+    it("appends the middleware to the existing metadata", function() {
+      const middleware1 = (req: Request, res: Response, next: NextFunction) =>
+        next();
+      const middleware2 = (req: Request, res: Response, next: NextFunction) =>
+        next();
+      class TestClass {
+        @use(middleware1)
+        @use(middleware2)
+        testMethod() {}
+      }
+
+      const instance = new TestClass();
+
+      const metadata = getControllerMethodMetadata(instance.testMethod);
+
+      expect(metadata?.middleware).toEqual([middleware2, middleware1]);
     });
   });
 });

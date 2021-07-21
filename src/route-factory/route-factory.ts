@@ -59,27 +59,28 @@ function linkControllerMethodToRoute(
   // handleRequest is pre-bound by MethodHandler
   const handler = methodHandler.handleRequest;
   const path = methodMetadata.path ?? "/";
+  const middleware = methodMetadata.middleware ?? [];
   switch (methodMetadata.method) {
     case "GET":
-      route.get(path, handler);
+      route.get(path, ...middleware, handler);
       break;
     case "POST":
-      route.post(path, handler);
+      route.post(path, ...middleware, handler);
       break;
     case "PUT":
-      route.put(path, handler);
+      route.put(path, ...middleware, handler);
       break;
     case "PATCH":
-      route.patch(path, handler);
+      route.patch(path, ...middleware, handler);
       break;
     case "DELETE":
-      route.delete(path, handler);
+      route.delete(path, ...middleware, handler);
       break;
     case "TRACE":
-      route.trace(path, handler);
+      route.trace(path, ...middleware, handler);
       break;
     case "CONNECT":
-      route.connect(path, handler);
+      route.connect(path, ...middleware, handler);
       break;
     default:
       throw new Error(

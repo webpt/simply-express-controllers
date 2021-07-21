@@ -31,23 +31,6 @@ class WidgetController {
 }
 ```
 
-### Adding middleware
-
-Middleware can be added on a per-controller basis by using the `@use` decorator.
-
-```js
-import { controller } from "simply-express-controllers";
-import cors from "cors";
-
-// Path is optional, and defaults to "/".
-@controller("/widgets")
-@use(cors())
-class WidgetController {
-  // _repo is an example repository that will be used in future examples.
-  constructor(private _repo: WidgetRepo) {}
-}
-```
-
 ### Creating a route handler
 
 Route handlers are created by decorating an async function on the controller with the appropriate decorator for the http method desired.
@@ -468,6 +451,78 @@ class UserController {
 }
 ```
 
+### Connecting your controller to express
+
+The end result of simply-express-controllers is to create express Routers. This is done through the `createControllerRoute(...controllers)` function. This function will take any number of controller instances, and create a single express Router to handle all of them.
+
+Note that the function expects instances of controllers, not the controller classes. You need to instantiate your class before passing it to the function.
+
+```js
+import express from "express";
+import { createControllerRoute } from "simply-express-controllers";
+
+import { WidgetController } from "./controllers/WidgetController";
+
+const app = express();
+
+const controllers = [new WidgetController(new WidgetRepository())];
+
+const route = createControllerRoute(...controllers);
+
+app.use(route);
+
+app.listen(8080);
+```
+
+There are many ways of automating the collection of controllers, and the choice is left up to you.
+
+Some possible solutions:
+
+- Collect all controllers in an index file, and export as an array.
+- Automatically collect controllers from a known folder using [require-dir](https://www.npmjs.com/package/require-dir).
+- Use an IOC container and bind all controllers under a common identifier.
+
+### Generating Swagger documentation for your controllers
+
+To generate swagger path documentation for your controllers, use `createSwaggerPaths(...controllers)`. Like `createControllerRoute`, this function expects live instances of the controller classes.
+
+Take note that this function does not return a fully formed swagger documentation object. Instead, it returns an object suitable for the `paths` key of swagger docs. You must specify the rest of the top level documentation keys.
+
+```js
+import express from "express";
+import { createSwaggerPaths } from "simply-express-controllers";
+import {
+  serve as swaggerServe,
+  setup as swaggerSetup,
+} from "swagger-ui-express";
+
+import { WidgetController } from "./controllers/WidgetController";
+
+const controllers = [new WidgetController(new WidgetRepository())];
+
+const swaggerDocs = {
+  openapi: "3.0.0",
+  info: {
+    title: "Soapdish Example",
+    description: "Hello World",
+    version: "1.0.0",
+  },
+  servers: [
+    {
+      url: "http://localhost:8080",
+      description: "The Server",
+    },
+  ],
+  paths: createSwaggerPaths(...controllers),
+};
+
+const app = express();
+
+app.use("/api-docs", swaggerServe, swaggerSetup(swaggerDocs));
+```
+
+## Advanced Use Cases
+
 ### Testing methods with `result()`
 
 In order to attach properties to your response body, `result()` wraps the result in a class instance. To test the result, you must access the properties of this class:
@@ -492,6 +547,26 @@ expect(result.headers["Content-Location"]).toEqual(
   "www.myserver.com/widgets/1"
 );
 expect(result.cookies["my-cookie"].value).toBeDefined();
+```
+
+### Adding middleware
+
+Middleware can be added on a per-controller or per-method basis by using the `@use` decorator.
+
+```js
+import { get, use, controller } from "simply-express-controllers";
+import helmet from "helmet";
+import cors from "cors";
+
+@controller("/widgets")
+@use(helmet())
+class WidgetController {
+  @get()
+  @use(cors())
+  corsHandledMethod() {
+    ...
+  }
+}
 ```
 
 ### Retrieving the express Request and Response
@@ -599,74 +674,4 @@ class WidgetController {
     return await this._repo.getWidgets();
   }
 }
-```
-
-### Connecting your controller to express
-
-The end result of simply-express-controllers is to create express Routers. This is done through the `createControllerRoute(...controllers)` function. This function will take any number of controller instances, and create a single express Router to handle all of them.
-
-Note that the function expects instances of controllers, not the controller classes. You need to instantiate your class before passing it to the function.
-
-```js
-import express from "express";
-import { createControllerRoute } from "simply-express-controllers";
-
-import { WidgetController } from "./controllers/WidgetController";
-
-const app = express();
-
-const controllers = [new WidgetController(new WidgetRepository())];
-
-const route = createControllerRoute(...controllers);
-
-app.use(route);
-
-app.listen(8080);
-```
-
-There are many ways of automating the collection of controllers, and the choice is left up to you.
-
-Some possible solutions:
-
-- Collect all controllers in an index file, and export as an array.
-- Automatically collect controllers from a known folder using [require-dir](https://www.npmjs.com/package/require-dir).
-- Use an IOC container and bind all controllers under a common identifier.
-
-### Generating Swagger documentation for your controllers
-
-To generate swagger path documentation for your controllers, use `createSwaggerPaths(...controllers)`. Like `createControllerRoute`, this function expects live instances of the controller classes.
-
-Take note that this function does not return a fully formed swagger documentation object. Instead, it returns an object suitable for the `paths` key of swagger docs. You must specify the rest of the top level documentation keys.
-
-```js
-import express from "express";
-import { createSwaggerPaths } from "simply-express-controllers";
-import {
-  serve as swaggerServe,
-  setup as swaggerSetup,
-} from "swagger-ui-express";
-
-import { WidgetController } from "./controllers/WidgetController";
-
-const controllers = [new WidgetController(new WidgetRepository())];
-
-const swaggerDocs = {
-  openapi: "3.0.0",
-  info: {
-    title: "Soapdish Example",
-    description: "Hello World",
-    version: "1.0.0",
-  },
-  servers: [
-    {
-      url: "http://localhost:8080",
-      description: "The Server",
-    },
-  ],
-  paths: createSwaggerPaths(...controllers),
-};
-
-const app = express();
-
-app.use("/api-docs", swaggerServe, swaggerSetup(swaggerDocs));
 ```

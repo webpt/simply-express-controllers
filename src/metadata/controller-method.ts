@@ -1,13 +1,15 @@
 import { merge } from "lodash";
 import { JSONSchema6 } from "json-schema";
+import { Request, RequestHandler } from "express";
 
 import createSymbol from "../create-symbol";
 import { Method } from "../types";
-import { Request } from "express";
 
 export interface ControllerMethodMetadata {
   method: Method;
   path?: string;
+
+  middleware?: RequestHandler[];
 
   summary?: string;
   description?: string;
