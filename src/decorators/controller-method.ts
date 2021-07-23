@@ -1,4 +1,5 @@
 import { JSONSchema6 } from "json-schema";
+import { appendControllerMetadata, getControllerMetadata } from "../metadata";
 
 import { appendControllerMethodMetadata } from "../metadata/controller-method";
 import { Method } from "../types";
@@ -249,7 +250,7 @@ export function method(
       path,
       summary: settings!.summary,
       description: settings!.description,
-      tags: settings!.tags
+      tags: settings!.tags,
     });
   };
 }
@@ -271,9 +272,9 @@ export function response(
       responses: {
         [statusCode]: {
           description: settings.description,
-          schema: settings.schema
-        }
-      }
+          schema: settings.schema,
+        },
+      },
     });
   };
 }
@@ -288,7 +289,21 @@ export function response(
 export function swaggerMethod(swaggerPathDocs: any): MethodDecorator {
   return (target: any, propertyKey: string | symbol) => {
     appendControllerMethodMetadata(target[propertyKey], {
-      swaggerOverride: swaggerPathDocs
+      swaggerOverride: swaggerPathDocs,
+    });
+  };
+}
+
+/**
+ * Specifies that the given method should be treated as middleware
+ * The middleware will be positioned after controller-level middleware, but before
+ * request handler method middleware.
+ */
+export function useMethod() {
+  return (target: any, propertyKey: string | symbol) => {
+    const metadata = getControllerMetadata(target) ?? { middlewareMethods: [] };
+    appendControllerMetadata(target, {
+      middlewareMethods: [...(metadata.middlewareMethods ?? []), propertyKey],
     });
   };
 }

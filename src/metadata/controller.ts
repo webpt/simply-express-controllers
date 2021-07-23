@@ -6,6 +6,7 @@ import createSymbol from "../create-symbol";
 export interface ControllerMetadata {
   path: string;
   middleware?: RequestHandler[];
+  middlewareMethods?: (string | symbol)[];
 }
 
 const ControllerMetadataSymbol = createSymbol("controller-metadata");

@@ -35,6 +35,13 @@ function linkControllerToRoute(controller: Controller, route: Router) {
   for (const middleware of controllerMetadata.middleware ?? []) {
     controllerRouter.use(middleware);
   }
+  for (const middlewareMethod of controllerMetadata.middlewareMethods ?? []) {
+    // Always fetch the current value of the method or property when invoking the middleware,
+    // so the controller can change the reference as needed.
+    controllerRouter.use((...args) =>
+      (controller as any)[middlewareMethod](...args)
+    );
+  }
 
   const methods = getControllerMethods(controller);
   for (const { metadata: methodMetadata, method } of methods) {
