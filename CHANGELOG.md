@@ -1,5 +1,9 @@
 # Changelo
 
+### 1.6.1
+
+- Fix `@useMethod`
+
 ## 1.6.0
 
 - Support middleware methods with `@useMethod`.

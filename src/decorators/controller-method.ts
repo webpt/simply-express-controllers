@@ -301,8 +301,10 @@ export function swaggerMethod(swaggerPathDocs: any): MethodDecorator {
  */
 export function useMethod() {
   return (target: any, propertyKey: string | symbol) => {
-    const metadata = getControllerMetadata(target) ?? { middlewareMethods: [] };
-    appendControllerMetadata(target, {
+    const metadata = getControllerMetadata(target.constructor) ?? {
+      middlewareMethods: [],
+    };
+    appendControllerMetadata(target.constructor, {
       middlewareMethods: [...(metadata.middlewareMethods ?? []), propertyKey],
     });
   };
