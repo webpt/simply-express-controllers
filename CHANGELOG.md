@@ -2,7 +2,7 @@
 
 ## 1.6.0
 
-- Support middleware methods with `@useMethod`.
+- Support middleware methods with `@middleware`.
 
 ## 1.5.0
 
