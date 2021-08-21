@@ -299,7 +299,7 @@ export function swaggerMethod(swaggerPathDocs: any): MethodDecorator {
  * The middleware will be positioned after controller-level middleware, but before
  * request handler method middleware.
  */
-export function useMethod() {
+export function middleware() {
   return (target: any, propertyKey: string | symbol) => {
     const metadata = getControllerMetadata(target.constructor) ?? {
       middlewareMethods: [],

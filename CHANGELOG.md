@@ -1,8 +1,4 @@
-# Changelo
-
-### 1.6.1
-
-- Fix `@useMethod`
+# Changelog
 
 ## 1.6.0
 
