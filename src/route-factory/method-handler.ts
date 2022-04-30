@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { mapValues, get } from "lodash";
 import Ajv, { ValidateFunction } from "ajv";
-import createError from "http-errors";
-import HttpStatusCodes from "http-status-codes";
+import { BadRequest, UnprocessableEntity, NotFound } from "http-errors";
 
 import { getValidatorError, NoOpAjvValidator } from "../ajv-utils";
 import {
@@ -19,6 +18,8 @@ import { maybeAwaitPromise } from "../promise-utils";
 
 const ajv = new Ajv({ coerceTypes: true, useDefaults: true });
 
+type ParamValidator = (value: any) => any;
+
 export class MethodHandler {
   /**
    * Validator for the request body.
@@ -33,12 +34,12 @@ export class MethodHandler {
   /**
    * Validators for path params indexed by param name.
    */
-  private _pathValidators: Record<string, ValidateFunction>;
+  private _pathValidators: Record<string, ParamValidator>;
 
   /**
    * Validators for query params indexed by param name.
    */
-  private _queryValidators: Record<string, ValidateFunction>;
+  private _queryValidators: Record<string, ParamValidator>;
 
   constructor(
     private _method: Function,
@@ -189,7 +190,7 @@ export class MethodHandler {
       this._methodMetadata.request.required &&
       req.body == null
     ) {
-      throw createError(HttpStatusCodes.BAD_REQUEST, "A body is required.");
+      throw new BadRequest("A body is required.");
     }
 
     if (!this._requestValidator(req.body)) {
@@ -198,7 +199,7 @@ export class MethodHandler {
         "does not match required schema",
         "body"
       );
-      throw createError(HttpStatusCodes.BAD_REQUEST, errorMessage);
+      throw new BadRequest(errorMessage);
     }
   }
 
@@ -297,7 +298,7 @@ export class MethodHandler {
 function createQueryParamValidator(
   metadata: ParamMetadata,
   key: string
-): ValidateFunction {
+): ParamValidator {
   // We need to pass the data by object, for type coersion and default values, and requiredness.
   const validate = ajv.compile({
     type: "object",
@@ -314,14 +315,10 @@ function createQueryParamValidator(
   return (value: any) => {
     const data = { value };
     if (metadata.required && value === undefined) {
-      throw createError(
-        HttpStatusCodes.BAD_REQUEST,
-        `Query parameter ${key} is required.`
-      );
+      throw new BadRequest(`Query parameter ${key} is required.`);
     }
     if (!validate(data)) {
-      throw createError(
-        HttpStatusCodes.UNPROCESSABLE_ENTITY,
+      throw new UnprocessableEntity(
         getValidatorError(validate, `Query parameter ${key} is invalid.`, key)
       );
     }
@@ -330,7 +327,7 @@ function createQueryParamValidator(
   };
 }
 
-function createPathParamValidator(metadata: ParamMetadata): ValidateFunction {
+function createPathParamValidator(metadata: ParamMetadata): ParamValidator {
   // We need to pass the data by object, for type coersion and default values, and requiredness.
   const validate = ajv.compile({
     type: "object",
@@ -344,7 +341,7 @@ function createPathParamValidator(metadata: ParamMetadata): ValidateFunction {
     const data = { value };
     if (!validate(data)) {
       // We could pass the validation error here, but a malformed path is typically 404d.
-      throw createError(HttpStatusCodes.NOT_FOUND);
+      throw new NotFound();
     }
     // Data may have been coerced by ajv.
     return data.value;

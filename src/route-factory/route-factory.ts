@@ -14,7 +14,7 @@ import { getControllerMethods } from "../controller-utils";
 import { MethodHandler } from "./method-handler";
 
 export function createControllerRoute(...controllers: object[]): Router {
-  const router = Router();
+  const router = Router({ mergeParams: true });
   router.use(bodyParser.json({ strict: false }));
 
   for (const controller of controllers) {
@@ -31,7 +31,7 @@ function linkControllerToRoute(controller: Controller, route: Router) {
     );
   }
 
-  const controllerRouter = Router();
+  const controllerRouter = Router({ mergeParams: true });
   for (const middleware of controllerMetadata.middleware ?? []) {
     controllerRouter.use(middleware);
   }

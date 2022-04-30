@@ -265,7 +265,7 @@ describe("Method Handler", function() {
         );
       });
 
-      it("coerces the query param value where appropriate", async function() {
+      it.only("coerces the path param value where appropriate", async function() {
         const method = jest.fn().mockReturnValue({});
         const paramName = "testParam";
         const paramValue = "42";
@@ -804,7 +804,7 @@ describe("Method Handler", function() {
       const cookieSettings2: CookieSettings = {
         domain: "www.foobar.com",
         path: "/foo",
-        expires: false,
+        expires: new Date("1-1-2022"),
       };
       const methodResult = result({ foo: 42 })
         .cookie(cookieName1, cookieValue1)

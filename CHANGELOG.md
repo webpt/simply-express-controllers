@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.0
+
+- Merge params from child routes so that controller path params are available
+- Update types to more closely match express options.
+
 ## 1.6.0
 
 - Support middleware methods with `@middleware`.

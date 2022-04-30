@@ -70,7 +70,7 @@ export interface CookieSettings {
   /**
    * Expiry date of the cookie in GMT. If not specified or set to 0, creates a session cookie.
    */
-  expires?: Date | boolean;
+  expires?: Date;
 
   /**
    * Flags the cookie to be accessible only by the web server.
@@ -101,7 +101,7 @@ export interface CookieSettings {
    * Value of the “SameSite” Set-Cookie attribute.
    * More information at https://tools.ietf.org/html/draft-ietf-httpbis-cookie-same-site-00#section-4.1.1.
    */
-  sameSite?: boolean | string;
+  sameSite?: boolean | "lax" | "strict" | "none";
 }
 
 export interface ResultBuilderCookie extends CookieSettings {
