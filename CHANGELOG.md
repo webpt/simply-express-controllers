@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.7.0
+## 1.8.0
 
 - Merge params from child routes so that controller path params are available
 - Update types to more closely match express options.
