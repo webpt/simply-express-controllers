@@ -15,6 +15,7 @@ import {
 import { Controller } from "../types";
 import { ResultBuilderCookie, ResultBuilder } from "../method-result";
 import { maybeAwaitPromise } from "../promise-utils";
+import { isPromise } from "util/types";
 
 const ajv = new Ajv({ coerceTypes: true, useDefaults: true });
 
@@ -101,7 +102,7 @@ export class MethodHandler {
     this._validateRequest(req);
 
     // Collect the arguments for the method based on method arg decorators.
-    const args = this._collectMethodArgs(req, res);
+    const args = await this._collectMethodArgs(req, res);
 
     // Execute the method to handle the request.
     const methodResult = this._method.apply(this._controller, args);
@@ -222,22 +223,25 @@ export class MethodHandler {
     }
   }
 
-  private _collectMethodArgs(req: Request, res: Response): any[] {
+  private async _collectMethodArgs(
+    req: Request,
+    res: Response
+  ): Promise<any[]> {
     const { handlerArgs } = this._methodMetadata;
     if (!handlerArgs) {
       return [];
     }
 
-    return handlerArgs.map((argMetadata) =>
-      this._collectArg(req, res, argMetadata)
+    return Promise.all(
+      handlerArgs.map((argMetadata) => this._collectArg(req, res, argMetadata))
     );
   }
 
-  private _collectArg(
+  private async _collectArg(
     req: Request,
     res: Response,
     argMetadata: ControllerMethodArgMetadata
-  ) {
+  ): Promise<any> {
     switch (argMetadata.type) {
       case "body":
         return req.body;
@@ -261,11 +265,15 @@ export class MethodHandler {
     }
   }
 
-  private _collectCustomValueFactory(
+  private async _collectCustomValueFactory(
     req: Request,
     argMetadata: CustomValueFactoryControllerMethodArgMetadata
   ) {
-    return argMetadata.valueFactory(req, argMetadata.options);
+    let result = argMetadata.valueFactory(req, argMetadata.options);
+    if (isPromise(result)) {
+      result = await result;
+    }
+    return result;
   }
 
   private _collectPathParam(

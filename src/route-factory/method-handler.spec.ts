@@ -265,7 +265,7 @@ describe("Method Handler", function() {
         );
       });
 
-      it.only("coerces the path param value where appropriate", async function() {
+      it("coerces the path param value where appropriate", async function() {
         const method = jest.fn().mockReturnValue({});
         const paramName = "testParam";
         const paramValue = "42";
@@ -456,6 +456,33 @@ describe("Method Handler", function() {
         expect(next).not.toBeCalled();
         expect(valueFactory).toBeCalledWith(req, options);
         expect(method).toBeCalledWith(returnValue);
+      });
+
+      it("awaits the returned value if promise", async function() {
+        const method = jest.fn().mockReturnValue({});
+        const options = "hello world";
+        const returnValue = Promise.resolve(42);
+        const expectedValue = 42;
+        const valueFactory = jest.fn().mockReturnValue(returnValue);
+        const firstArg: CustomValueFactoryControllerMethodArgMetadata = {
+          type: "custom-value-factory",
+          options,
+          valueFactory,
+        };
+        const metadata = createMethodMetadata({
+          handlerArgs: [firstArg],
+        });
+        const handler = new MethodHandler(method, metadata, dummyController);
+
+        const req = createRequest();
+        const res = createResponse();
+        const next = jest.fn();
+
+        await handler.handleRequest(req, res, next);
+
+        expect(next).not.toBeCalled();
+        expect(valueFactory).toBeCalledWith(req, options);
+        expect(method).toBeCalledWith(expectedValue);
       });
     });
 

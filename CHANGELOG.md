@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.0
+
+- If createRequestDecorator returns a promise, resolve the promise value before continuing.
+
 ## 1.8.0
 
 - Merge params from child routes so that controller path params are available
