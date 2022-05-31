@@ -14,8 +14,7 @@ import {
 } from "../metadata";
 import { Controller } from "../types";
 import { ResultBuilderCookie, ResultBuilder } from "../method-result";
-import { maybeAwaitPromise } from "../promise-utils";
-import { isPromise } from "util/types";
+import { maybeAwaitPromise, isPromise } from "../promise-utils";
 
 const ajv = new Ajv({ coerceTypes: true, useDefaults: true });
 
