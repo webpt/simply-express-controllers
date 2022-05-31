@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.1
+
+- Fix unintended use of 'util' library.
+
 ## 1.9.0
 
 - If createRequestDecorator returns a promise, resolve the promise value before continuing.
