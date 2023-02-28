@@ -42,7 +42,7 @@ export interface ParamMetadata {
    * Whether this parameter is required.
    */
   required?: boolean;
-
+  description?: string;
   schema?: JSONSchema6;
 }
 

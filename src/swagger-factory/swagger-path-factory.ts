@@ -51,10 +51,10 @@ function createSwaggerMethodConfig(
     tags: methodMetadata.tags,
     parameters: [
       ...createSwaggerMethodPathParameters(methodMetadata),
-      ...createSwaggerMethodQueryParameters(methodMetadata)
+      ...createSwaggerMethodQueryParameters(methodMetadata),
     ],
     requestBody: createSwaggerRequestBody(methodMetadata),
-    responses: createSwaggerResponses(methodMetadata)
+    responses: createSwaggerResponses(methodMetadata),
   };
 }
 
@@ -70,9 +70,9 @@ function createSwaggerRequestBody(
     content: {
       "application/json": {
         required: methodMetadata.request.required,
-        schema: methodMetadata.request.schema
-      }
-    }
+        schema: methodMetadata.request.schema,
+      },
+    },
   };
 }
 
@@ -83,7 +83,7 @@ function createSwaggerResponses(
 
   const keys = Object.keys(methodMetadata.responses || {})
     .map(Number)
-    .filter(x => !isNaN(x));
+    .filter((x) => !isNaN(x));
 
   if (keys.length === 0) {
     return undefined;
@@ -95,9 +95,9 @@ function createSwaggerResponses(
       description: data.description,
       content: {
         "application/json": {
-          schema: data.schema
-        }
-      }
+          schema: data.schema,
+        },
+      },
     };
   }
 
@@ -116,7 +116,7 @@ function createSwaggerMethodPathParameters(
       in: "path",
       required: true,
       description: param.description,
-      schema: param
+      schema: param,
     });
   }
 
@@ -128,14 +128,15 @@ function createSwaggerMethodQueryParameters(
 ): object[] {
   const params: object[] = [];
 
-  for (const key of Object.keys(methodMetadata.queryParams || {})) {
-    const param = (methodMetadata.queryParams as any)[key];
+  const queryParams = methodMetadata.queryParams || {};
+  for (const key of typedKeys(queryParams)) {
+    const param = queryParams[key];
     params.push({
       name: key,
       in: "query",
       required: param.required,
       description: param.description,
-      schema: omit(param, "required")
+      schema: param.schema,
     });
   }
 
@@ -155,13 +156,6 @@ function expressPathToSwaggerPath(path: string): string {
     .join("/");
 }
 
-function omit(obj: any, ...props: string[]): any {
-  const result: any = {};
-  for (const key of Object.keys(obj)) {
-    if (props.includes(key)) {
-      continue;
-    }
-    result[key] = (obj as any)[key];
-  }
-  return result;
+function typedKeys<T extends {}>(obj: T): (keyof T)[] {
+  return Object.keys(obj) as (keyof T)[];
 }
