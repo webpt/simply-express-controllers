@@ -109,14 +109,15 @@ function createSwaggerMethodPathParameters(
 ): object[] {
   const params: object[] = [];
 
-  for (const key of Object.keys(methodMetadata.pathParams || {})) {
-    const param = (methodMetadata.pathParams as any)[key];
+  const pathParams = methodMetadata.pathParams || {};
+  for (const key of typedKeys(pathParams)) {
+    const param = pathParams[key];
     params.push({
       name: key,
       in: "path",
       required: true,
       description: param.description,
-      schema: param,
+      schema: param.schema,
     });
   }
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.3
+
+- Fix swagger docs on path aprams
+
 ## 1.9.2
 
 - Fix swagger docs on query params
