@@ -147,7 +147,7 @@ function createSwaggerMethodQueryParameters(
 function expressPathToSwaggerPath(path: string): string {
   function expressToSwagger(fragment: string): string {
     if (fragment.startsWith(":")) {
-      return "{" + fragment.substr(1) + "}";
+      return "{" + fragment.substring(1) + "}";
     }
     return fragment;
   }

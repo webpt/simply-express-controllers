@@ -1,12 +1,7 @@
 import { Router } from "express";
-import pathUtils from "path";
 import bodyParser from "body-parser";
 
-import {
-  getControllerMetadata,
-  ControllerMetadata,
-  ControllerMethodMetadata,
-} from "../metadata";
+import { getControllerMetadata, ControllerMethodMetadata } from "../metadata";
 import { Controller } from "../types";
 
 import { getControllerMethods } from "../controller-utils";
