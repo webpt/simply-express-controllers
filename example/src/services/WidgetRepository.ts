@@ -18,7 +18,7 @@ export const widgetSchema: Readonly<JSONSchema6> = Object.seal({
 export type CreateWidgetRequest = Omit<Widget, "id">;
 export const createWidgetRequestSchema: Readonly<JSONSchema6> = Object.seal({
   type: "object",
-  proerties: {
+  properties: {
     name: { type: "string" },
     disposition: { enum: ["happy", "sad"] }
   },
