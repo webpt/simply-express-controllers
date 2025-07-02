@@ -1,4 +1,8 @@
 # Changelog
+## 2.0.0
+
+- Upgraded application to support Nodejs V22.
+- Added minimum node support engine property.  The application now supports NodeJs v16+
 
 ## 1.9.3
 

@@ -21,7 +21,8 @@ export interface BodySettings {
  * Annotates this parameter to receive the request body.
  */
 export function body(settings: BodySettings = {}): ParameterDecorator {
-  return (target: any, propertyKey: string | symbol, methodIndex: number) => {
+  return (target: any, propertyKey: string | symbol | undefined, methodIndex: number) => {
+    if (propertyKey === undefined) return;
     const partialArgs: ControllerMethodArgMetadata[] = [];
     partialArgs[methodIndex] = {
       type: "body",
@@ -57,7 +58,8 @@ export function pathParam(
   paramName: string,
   settings: PathParamSettings = {}
 ): ParameterDecorator {
-  return (target: any, propertyKey: string | symbol, methodIndex: number) => {
+  return (target: any, propertyKey: string | symbol | undefined, methodIndex: number) => {
+    if (propertyKey === undefined) return;
     const partialArgs: ControllerMethodArgMetadata[] = [];
     partialArgs[methodIndex] = {
       type: "pathParam",
@@ -100,7 +102,8 @@ export function queryParam(
   paramName: string,
   settings: QueryParamSettings = {}
 ): ParameterDecorator {
-  return (target: any, propertyKey: string | symbol, methodIndex: number) => {
+  return (target: any, propertyKey: string | symbol | undefined, methodIndex: number) => {
+    if (propertyKey === undefined) return;
     const partialArgs: ControllerMethodArgMetadata[] = [];
     partialArgs[methodIndex] = {
       type: "queryParam",
@@ -122,7 +125,8 @@ export function queryParam(
  * Annotates the parameter to receive the express Request object.
  */
 export function expressRequest(): ParameterDecorator {
-  return (target: any, propertyKey: string | symbol, methodIndex: number) => {
+  return (target: any, propertyKey: string | symbol | undefined, methodIndex: number) => {
+    if (propertyKey === undefined) return;
     const partialArgs: ControllerMethodArgMetadata[] = [];
     partialArgs[methodIndex] = {
       type: "request",
@@ -137,7 +141,8 @@ export function expressRequest(): ParameterDecorator {
  * Annotates the parameter to receive the express Response object.
  */
 export function expressResponse(): ParameterDecorator {
-  return (target: any, propertyKey: string | symbol, methodIndex: number) => {
+  return (target: any, propertyKey: string | symbol | undefined, methodIndex: number) => {
+    if (propertyKey === undefined) return;
     const partialArgs: ControllerMethodArgMetadata[] = [];
     partialArgs[methodIndex] = {
       type: "response",
@@ -164,7 +169,8 @@ export function createRequestDecorator<TOpts>(
   valueFactory: (req: Request, opts: TOpts) => any
 ): (opts: TOpts) => ParameterDecorator {
   return (opts: TOpts) => {
-    return (target: any, propertyKey: string | symbol, methodIndex: number) => {
+    return (target: any, propertyKey: string | symbol | undefined, methodIndex: number) => {
+      if (propertyKey === undefined) return;
       const partialArgs: ControllerMethodArgMetadata[] = [];
       partialArgs[methodIndex] = {
         type: "custom-value-factory",

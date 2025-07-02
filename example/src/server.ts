@@ -45,11 +45,14 @@ export function runServer() {
 
   // Create a router to implement all our controllers
   const router = createControllerRoute(...controllers);
-  app.use(router);
+  app.use(router as any);
 
   setupSwagger(app, controllers);
 
-  app.listen(Port);
+  app.listen(Port, () => {
+    console.log(`🚀 Server is running on http://localhost:${Port}`);
+    console.log(`📖 API documentation available at http://localhost:${Port}/api-docs`);
+  });
 }
 
 function setupSwagger(app: Express, controllers: any[]) {

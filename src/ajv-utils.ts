@@ -1,6 +1,6 @@
 import { ValidateFunction } from "ajv";
 
-export const NoOpAjvValidator: ValidateFunction = () => true;
+export const NoOpAjvValidator: ValidateFunction = (() => true) as unknown as ValidateFunction;
 
 export function getValidatorError(
   validator: ValidateFunction,
@@ -19,7 +19,7 @@ export function getValidatorError(
     return defaultMessage;
   }
 
-  let prop = error.propertyName || error.dataPath || defaultProp;
+  let prop = error.propertyName || error.instancePath || defaultProp;
   if (prop && prop != "") {
     prop += " ";
   }
